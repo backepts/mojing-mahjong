@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14121f">
+<title>魔競娛樂麻將間</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="魔競麻將間">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700&family=Fredoka:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#14121f; --card:#1f1c30; --card2:#29243f; --line:#353050; --accent:#fbbf24; --accent-ink:#3b2500;
+  --text:#ece8f6; --sub:#a39cc0; --dim:#77709a; --white:#ffffff;
+  --win:#5eead4; --lose:#fb7185; --gold:#facc15; --gold-ink:#3b2f00;
+  --f-display:"Huninn","Noto Sans TC",system-ui,sans-serif;
+  --f-body:"Noto Sans TC",system-ui,sans-serif;
+  --f-num:"Fredoka","Noto Sans TC",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--f-body);font-size:15px;-webkit-font-smoothing:antialiased}
+button{font:inherit}
+.wrap{max-width:480px;margin:0 auto;padding:max(20px, env(safe-area-inset-top)) 16px max(40px, env(safe-area-inset-bottom))}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.org{font:400 13px var(--f-display);color:var(--sub);letter-spacing:2px}
+h1{margin:2px 0 0;font:400 26px var(--f-display);color:var(--white)}
+.season{font:600 12px var(--f-num);background:var(--accent);color:var(--accent-ink);padding:2px 8px;border-radius:6px;vertical-align:4px;margin-left:6px}
+.meta{font-size:12px;color:var(--dim);margin-top:8px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.btn{background:transparent;border:1px solid var(--line);color:var(--sub);border-radius:8px;padding:5px 11px;font-size:12px;cursor:pointer}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:500}
+.btn:active,.row:active,.pc:active{transform:scale(.97)}
+.sec{font:400 13px var(--f-display);color:var(--sub);margin:22px 2px 8px;letter-spacing:2px}
+.row{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;background:var(--card);margin-bottom:6px;cursor:pointer;border:1px solid var(--line);transition:border-color .2s;width:100%;color:inherit;text-align:left}
+.row.on{border-color:var(--accent);background:var(--card2)}
+.rk{width:30px;height:30px;flex:none;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;background:var(--line);color:var(--sub)}
+.rk.first{background:var(--gold);color:var(--gold-ink);font-size:16px}
+.who{flex:1;min-width:0}
+.who b{display:block;font-weight:500;color:var(--white);font-size:16px}
+.tier{font-size:11px;padding:1px 7px;border-radius:5px}
+.amt{font-size:18px;font-weight:600}
+.pos{color:var(--win)} .neg{color:var(--lose)} .zero{color:var(--sub)}
+.card{background:var(--card);border-radius:14px;padding:16px;border:1px solid var(--accent)}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0;text-align:center;font-size:11px;color:var(--sub)}
+.grid4 div div{font-size:16px;color:var(--white);font-weight:600;margin-top:2px}
+.grid4 div div.pos{color:var(--win)} .grid4 div div.neg{color:var(--lose)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.st{background:var(--card);border-radius:12px;padding:12px 6px;text-align:center;border:1px solid var(--line)}
+.st small{display:block;font-size:11px;color:var(--sub)}
+.st span{font-size:20px;font-weight:600;color:var(--white)}
+.days{display:flex;gap:6px;overflow-x:auto;margin-top:8px;padding-bottom:2px}
+.day{flex:0 0 auto;min-width:64px;background:var(--bg);border-radius:8px;padding:6px 8px;text-align:center;font-size:11px;color:var(--dim)}
+.day div{font-size:14px;font-weight:600;margin-top:2px}
+.chip{font-size:12px;padding:4px 10px;border-radius:8px;background:var(--card);color:var(--dim);border:1px dashed var(--line)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.msg{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;text-align:center;color:var(--sub);margin-top:20px}
+.msg.err{border-color:var(--lose);color:var(--lose)}
+.msg.okk{border-color:var(--win);color:var(--win)}
+/* 記帳頁 */
+.tabs{display:flex;gap:6px;margin-top:14px}
+.tab{flex:1;padding:9px;border-radius:9px;text-align:center;cursor:pointer;color:var(--sub);border:1px solid var(--line);background:var(--card);font-size:13px}
+.tab.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:500}
+.pc{padding:6px 12px;border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--sub);cursor:pointer;font-size:13px}
+.pc.on{background:var(--card2);border-color:var(--accent);color:var(--white)}
+.pc.dash{border-style:dashed}
+.in{background:var(--bg);border:1px solid var(--line);color:var(--white);border-radius:8px;padding:9px 10px;font:inherit;font-size:16px;width:100%;min-width:0;color-scheme:dark}
+.in:focus{outline:none;border-color:var(--accent)}
+select.in{appearance:none}
+.line{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 6px 6px 10px;margin-bottom:6px}
+.sg{width:44px;height:38px;border-radius:8px;border:1px solid var(--line);background:var(--bg);cursor:pointer;font-size:14px;flex:none}
+.hint{font-size:11px;color:var(--dim);margin-top:5px}
+.bal{margin-top:16px;border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.7}
+.go{width:100%;padding:14px;border-radius:12px;border:none;font-size:16px;font-weight:500;cursor:pointer;margin-top:12px}
+.confirm{background:var(--card);border:1px solid var(--accent);border-radius:12px;padding:14px;font-size:14px;margin-top:12px;line-height:1.7}
+.err-t{color:var(--lose);font-size:13px;margin-top:8px}
+footer{margin-top:28px;text-align:center;font-size:11px;color:var(--dim)}
+@keyframes rise{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
+.rise{animation:rise .3s ease both}
+/* 戰況回顧 */
+.flt{font-size:12px;color:var(--sub);margin:16px 2px 6px}
+.rnav{display:flex;align-items:center;justify-content:space-between;margin:16px 0 10px}
+.nb{width:40px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--white);font-size:18px;cursor:pointer}
+.stage{display:grid;grid-template-columns:88px minmax(0,1fr) 88px;gap:6px;align-items:center;justify-items:center;touch-action:pan-y}
+.seat{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0}
+.seat b{font-size:13px;font-weight:500;color:var(--white);max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seat .num{font-size:15px;font-weight:600}
+.felt{width:100%;max-width:160px;aspect-ratio:1;background:#1e6b4f;border:6px solid #6b3f1f;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center}
+.extra{display:flex;justify-content:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+/* 讀取中：胖胖像素橘貓走路 */
+.walk{position:relative;height:44px;overflow:hidden;margin:0 0 4px}
+.walk svg{position:absolute;top:0;animation:walk 4.5s linear infinite}
+.walk g{visibility:hidden;animation:frame .56s steps(1) infinite}
+.road{height:2px;margin:2px 0 12px;background:repeating-linear-gradient(90deg,var(--line) 0 6px,transparent 6px 12px)}
+@keyframes walk{from{left:-64px}to{left:100%}}
+@keyframes frame{0%{visibility:visible}25%,100%{visibility:hidden}}
+/* 紀錄保持人 */
+.recs{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px 12px}
+.rec{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
+.rec:last-child{border-bottom:none}
+.medal{width:24px;height:24px;flex:none;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.rec .nm{flex:1;min-width:0;font-size:15px;color:var(--white);font-weight:500}
+.rec .nm small{display:block;font-size:11px;color:var(--dim);font-weight:400}
+.rec .num{font-size:15px;font-weight:600}
+.ico{flex:none;display:block}
+.pc .ico{display:inline-block;vertical-align:-5px;margin:-2px 4px -2px -4px}
+@media (prefers-reduced-motion: reduce){.rise,.walk svg,.walk g{animation:none}.walk g:first-of-type{visibility:visible}}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="org">魔競娛樂麻將間</div>
+      <h1 id="title">Rank<span class="season num">S1</span></h1>
+    </div>
+    <div id="hIcon"></div>
+  </header>
+  <div class="meta">
+    <span id="meta">讀取中…</span>
+    <span><button class="btn" id="reload" type="button">重新整理</button> <button class="btn pri" id="toEntry" type="button">記帳</button></span>
+  </div>
+  <div class="tabs" id="views"><button type="button" class="tab on" data-v="board">Rank</button><button type="button" class="tab" data-v="replay">戰況回顧</button><button type="button" class="tab" data-v="records">紀錄保持人</button></div>
+  <main id="board"><div class="msg">洗牌中…</div></main>
+  <main id="replay" hidden></main>
+  <main id="records" hidden></main>
+  <main id="entry" hidden></main>
+  <footer>魔競娛樂麻將間・每次打開都讀最新資料</footer>
+</div>
+
+<script>
+const API_URL = 'REPLACE_WITH_WEBAPP_URL';
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = n => (n > 0 ? '+' : '') + Math.round(n).toLocaleString();
+const cls = n => n > 0 ? 'pos' : n < 0 ? 'neg' : 'zero';
+const $ = id => document.getElementById(id);
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+};
+const shortDate = date => { const p = date.split('-'); return Number(p[1]) + '/' + Number(p[2]); };
+
+let RAW = null, D = null, sel = null;
+
+// ---------- 排行榜 ----------
+function build(raw) {
+  const sessions = raw.sessions;
+  const players = raw.players.map(name => {
+    const vals = sessions.map(s => { const r = s.results.find(x => x.name === name); return r ? r.amt : null; });
+    const played = vals.filter(v => v !== null);
+    return { name, vals, played, total: played.reduce((a, v) => a + v, 0) };
+  });
+  return {
+    labels: sessions.map(s => s.label),
+    sessions,
+    active: players.filter(p => p.played.length).sort((a, b) => b.total - a.total),
+    idle: players.filter(p => !p.played.length),
+    last: sessions.length ? sessions[sessions.length - 1].label : '—'
+  };
+}
+
+// 段位同番仔碼頭：第一名、最後一名各一人；中間看總輸贏：贏 3,000 以上鑽石、贏不到 3,000（含打平）白銀、輸 3,000 以內銅牌仔、輸超過 3,000 鐵牌仔
+function tierOf(i, n, total) {
+  if (i === 0) return ['至尊雀王', '#facc15', '#3b2f00'];
+  if (i === n - 1 && n > 1) return ['地獄倒霉鬼', '#fb7185', '#4a0d1a'];
+  if (total >= 3000) return ['鑽石', '#7dd3fc', '#0b2a3d'];
+  if (total >= 0) return ['白銀', '#d4d4e8', '#2e2c4a'];
+  if (total >= -3000) return ['銅牌仔', '#e0a46e', '#3a2412'];
+  return ['鐵牌仔', '#94a3b8', '#1e2533'];
+}
+
+function renderBoard() {
+  const app = $('board');
+  if (!D.active.length) { app.innerHTML = '<div class="msg">還沒有任何對局紀錄，按右上角「記帳」新增第一桌</div>'; return; }
+  if (!sel || !D.active.find(p => p.name === sel)) sel = D.active[0].name;
+  const n = D.active.length;
+  const lb = D.active.map((p, i) => {
+    const [tn, c, bg] = tierOf(i, n, p.total);
+    return `<button type="button" class="row rise ${p.name === sel ? 'on' : ''}" style="animation-delay:${i * 40}ms" data-name="${esc(p.name)}">
+      <div class="rk num ${i === 0 ? 'first' : ''}">${i === 0 ? '♛' : i + 1}</div>
+      ${avatar(p.name, 0, 40)}
+      <div class="who"><b>${esc(p.name)}</b><span class="tier" style="background:${bg};color:${c}">${tn}</span></div>
+      <div class="amt num ${cls(p.total)}">${fmt(p.total)}</div></button>`;
+  }).join('');
+
+  const ss = D.sessions;
+  const rounds = ss.reduce((a, s) => a + s.rounds, 0);
+  const timed = ss.filter(s => perRound(s) !== null);
+  const tRounds = timed.reduce((a, s) => a + s.rounds, 0);
+  const tMins = timed.reduce((a, s) => a + durMin(s.start, s.end), 0);
+
+  app.innerHTML = `
+    <div class="sec">總排行</div><div id="lb">${lb}</div>
+    <div class="sec">個人戰績卡</div><div class="card" id="card"></div>
+    <div class="sec">牌桌統計</div>
+    <div class="grid3">
+      <div class="st"><small>總桌數</small><span class="num">${ss.length}</span></div>
+      <div class="st"><small>總將數</small><span class="num">${rounds}</span></div>
+      <div class="st"><small>每將平均</small><span class="num">${tRounds ? Math.round(tMins / tRounds) + '<small style="display:inline;font-size:12px"> 分</small>' : '—'}</span></div>
+    </div>
+    ${D.idle.length ? `<div class="sec">尚未出賽</div><div class="chips">${D.idle.map(p => `<span class="chip">${esc(p.name)}</span>`).join('')}</div>` : ''}`;
+
+  document.querySelectorAll('#lb .row').forEach(el => el.addEventListener('click', () => {
+    sel = el.dataset.name;
+    document.querySelectorAll('#lb .row').forEach(r => r.classList.toggle('on', r === el));
+    renderCard();
+  }));
+  renderCard();
+}
+
+function renderCard() {
+  const p = D.active.find(x => x.name === sel);
+  const wins = p.played.filter(v => v > 0).length;
+  let acc = 0;
+  const pts = [0, ...p.vals.map(v => acc += (v || 0))];
+  const mx = Math.max(...pts.map(Math.abs), 1);
+  const W = 300, H = 64, step = W / Math.max(pts.length - 1, 1);
+  const y = v => H / 2 - v / mx * (H / 2 - 5);
+  const line = pts.map((v, i) => `${(i * step).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  const days = p.vals.map((v, i) => ({ v, i })).filter(x => x.v !== null).reverse()
+    .map(({ v, i }) => `<div class="day">${esc(D.labels[i])}<div class="num ${cls(v)}">${fmt(v)}</div></div>`).join('');
+  $('card').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="display:flex;align-items:center;gap:8px;font:400 21px var(--f-display);color:var(--white)">${avatar(p.name, 0, 48)}${esc(p.name)}</div>
+      <div class="num ${cls(p.total)}" style="font-size:26px;font-weight:600">${fmt(p.total)}</div>
+    </div>
+    <div class="grid4">
+      <div>出賽<div class="num">${p.played.length}</div></div>
+      <div>勝率<div class="num">${Math.round(wins / p.played.length * 100)}%</div></div>
+      <div>單場最贏<div class="num pos">${wins ? fmt(Math.max(...p.played)) : '—'}</div></div>
+      <div>單場最輸<div class="num neg">${p.played.some(v => v < 0) ? fmt(Math.min(...p.played)) : '—'}</div></div>
+    </div>
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:64px" aria-label="累計輸贏走勢">
+      <line x1="0" y1="${H / 2}" x2="${W}" y2="${H / 2}" stroke="#353050" stroke-dasharray="3 3"/>
+      <polyline points="${line}" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      <circle cx="${((pts.length - 1) * step).toFixed(1)}" cy="${y(pts[pts.length - 1]).toFixed(1)}" r="4" fill="#fbbf24"/>
+    </svg>
+    <div class="days">${days}</div>`;
+}
+
+// ---------- 像素貓狗 ----------
+// 造型名稱存在主表「玩家」分頁 C 欄；空白就依名單順序自動配。每格一個字母＝一種顏色，h＝眼睛反光、E＝眼珠
+const SPRITES = {
+  '凱蒂風白貓': { rows: [
+    '.F.....RR.RR', '.FF....RRRRR', '.FIF...RR.RR', '.FFFFFFFFFF.', 'FFFFFFFFFFFF', 'FFFEFFFFEFFF',
+    'KKFEFFFFEFKK', 'FFFFFYYFFFFF', 'KKFFFFFFFFKK', '..FFFFFFFF..', '.BBBBBBBBBB.', '..FF....FF..'],
+    c: { F: '#fbfbfd', I: '#f9a8c8', R: '#e11d48', E: '#1a1a2e', Y: '#facc15', K: '#4b4b5a', B: '#f472b6' } },
+  '白底虎斑': { rows: [
+    '.T........T.', '.TT......TT.', '.TIT....TIT.', '.TDTTWWTTDT.', 'TTTDTWWTDTTT', 'TThETWWThETT',
+    'TTEETWWTEETT', 'DTTTWNNWTTTD', '.TWWWMMWWWT.', '..WWWWWWWW..', '.TWWWWWWWWT.', '..WW....WW..'],
+    c: { T: '#b47c48', D: '#5c3b22', W: '#f6f1ea', I: '#e8a0a8', h: '#ffffff', E: '#8fae9a', N: '#f0a0a8', M: '#b0786c' } },
+  '煙灰長毛': { rows: [
+    '............', '.G........G.', '.GIG....GIG.', 'GGGGGGGGGGGG', 'GGGGGGGGGGGG', 'GGhEGGGGhEGG',
+    'GGEEGGGGEEGG', 'GGGGGNNGGGGG', 'LGGGGMMGGGGL', 'LLGGGGGGGGLL', '.LLLLLLLLLL.', '..GG....GG..'],
+    c: { G: '#5d5866', L: '#8f8a99', I: '#7d6f7a', h: '#fff4d6', E: '#f59e0b', N: '#3a3540', M: '#3a3540' } },
+  '白貓': { rows: [
+    '.F........F.', '.FF......FF.', '.FIF....FIF.', '.FFFFFFFFFF.', 'FFFFFFFFFFFF', 'FFhEFFFFhEFF',
+    'FFEEFFFFEEFF', 'FCFFFNNFFFCF', '.FFFFMMFFFF.', '..FFFFFFFF..', '.FFFFFFFFFF.', '..FF....FF..'],
+    c: { F: '#f8f6fb', I: '#f9a8c8', h: '#ffffff', E: '#4f8fe6', N: '#f4a3b4', C: '#fbd0da', M: '#c79aa6' } },
+  '橘白長毛': { rows: [
+    '.O........O.', '.OO......OO.', '.OIO....OIO.', '.OOOOOOOOOO.', 'OOODOOOODOOO', 'OOhEOOOOhEOO',
+    'OOEEOOOOEEOO', 'OCOOWNNWOOCO', '.OOWWMMWWOO.', '..OWWWWWWO..', '.OOWWWWWWOO.', '..WW....WW..'],
+    c: { O: '#e8873a', D: '#c2662a', W: '#fbf5ec', I: '#f6b3a8', h: '#ffffff', E: '#1a1a2e', N: '#e98a8a', C: '#f5b08a', M: '#a15a3a' } },
+  '約克夏': { rows: [
+    '.T..P..P..T.', '.TT.PPPP.TT.', '.TTSSPPSSTT.', '.TSSSSSSSST.', 'TTTTTTTTTTTT', 'TThETTTThETT',
+    'TTEETTTTEETT', 'TTTTTKKTTTTT', 'TTTTTMMTTTTT', 'STTTTTTTTTTS', 'SSSSSSSSSSSS', '.TT......TT.'],
+    c: { T: '#c98b4a', S: '#5f6b80', P: '#f472b6', h: '#ffffff', E: '#1a1a2e', K: '#1a1a2e', M: '#8a4f2a' } }
+};
+const AUTO = ['白貓', '橘白長毛', '煙灰長毛', '白底虎斑', '約克夏', '凱蒂風白貓'];
+const CROWN = [[1, 0], [3, 0], [5, 0], [1, 1], [2, 1], [3, 1], [4, 1], [5, 1]];
+// 好戰者頭盔：連續戰鬥天數第一名，只在紀錄保持人頁
+const HELMET = ['X..........X', 'XX.GGGGGG.XX', '.XGGGGGGGGX.', '..GYGYGYGYG.'];
+const HELMET_C = { X: '#f5f0e1', G: '#94a3b8', Y: '#facc15' };
+
+// mood：1＝當桌最贏（戴王冠）、-1＝當桌最輸（生氣：眉毛往內下壓＋右上角紅色青筋；更兇的版本 Beck 嫌太可怕）
+function avatar(name, mood, size = 56, helmet = false) {
+  const i = Math.max(RAW.players.indexOf(name), 0);
+  const sp = SPRITES[(RAW.styles && RAW.styles[name]) || AUTO[i % AUTO.length]] || SPRITES['白貓'];
+  let o = '';
+  if (mood > 0) CROWN.forEach(([x, y]) => o += `<rect x="${x + 4}" y="${y}" width="1" height="1" fill="#facc15"/>`);
+  sp.rows.forEach((r, y) => [...r].forEach((ch, x) => {
+    if (ch === '.') return;
+    o += `<rect x="${x + 1}" y="${y + 2}" width="1" height="1" fill="${mood < 0 && ch === 'M' ? '#7a2e2e' : sp.c[ch]}"/>`;
+  }));
+  if (mood < 0) {
+    const eyes = [[], []];
+    sp.rows.forEach((r, y) => [...r].forEach((ch, x) => { if ('Eh'.includes(ch)) eyes[x < 6 ? 0 : 1].push([x, y]); }));
+    eyes.forEach((pts, side) => {
+      if (!pts.length) return;
+      const x0 = Math.min(...pts.map(p => p[0])), x1 = Math.max(...pts.map(p => p[0])), y0 = Math.min(...pts.map(p => p[1])) + 2;
+      const outer = side === 0 ? x0 - 1 : x1 + 1, inner = side === 0 ? x1 : x0;
+      o += `<rect x="${outer + 1}" y="${y0 - 2}" width="1" height="1" fill="#1a1a2e"/><rect x="${inner + 1}" y="${y0 - 1}" width="1" height="1" fill="#1a1a2e"/>`;
+    });
+    [[11, 0], [13, 0], [12, 1], [11, 2], [13, 2]].forEach(([x, y]) => o += `<rect x="${x}" y="${y}" width="1" height="1" fill="#ef4444"/>`);
+  }
+  if (helmet) HELMET.forEach((r, y) => [...r].forEach((ch, x) => { if (ch !== '.') o += `<rect x="${x + 1}" y="${y}" width="1" height="1" fill="${HELMET_C[ch]}"/>`; }));
+  return `<svg class="ico" width="${size}" height="${size}" viewBox="0 0 14 14" shape-rendering="crispEdges" aria-hidden="true">${o}</svg>`;
+}
+
+// 頁首圖示：紅中長貓耳（模擬圖 B 款）；桌面圖示 icons/*.png 也是同一張
+const LOGO = `<svg width="48" height="48" viewBox="0 0 32 32" shape-rendering="crispEdges" aria-hidden="true">
+  <rect width="32" height="32" rx="7" fill="#1f1c30"/>
+  <rect x="7" y="3" width="2" height="2" fill="#f6efe0"/><rect x="7" y="5" width="4" height="2" fill="#f6efe0"/><rect x="9" y="5" width="1" height="1" fill="#f9a8c8"/>
+  <rect x="23" y="3" width="2" height="2" fill="#f6efe0"/><rect x="21" y="5" width="4" height="2" fill="#f6efe0"/><rect x="22" y="5" width="1" height="1" fill="#f9a8c8"/>
+  <rect x="7" y="7" width="18" height="22" rx="2" fill="#f6efe0"/><rect x="7" y="27" width="18" height="2" fill="#2f9e6e"/>
+  <rect x="15" y="9" width="2" height="16" fill="#d6334f"/><rect x="10" y="12" width="12" height="2" fill="#d6334f"/><rect x="10" y="12" width="2" height="7" fill="#d6334f"/><rect x="20" y="12" width="2" height="7" fill="#d6334f"/><rect x="10" y="17" width="12" height="2" fill="#d6334f"/>
+  <rect x="4" y="20" width="2" height="1" fill="#4b4b5a"/><rect x="26" y="20" width="2" height="1" fill="#4b4b5a"/><rect x="4" y="22" width="2" height="1" fill="#4b4b5a"/><rect x="26" y="22" width="2" height="1" fill="#4b4b5a"/></svg>`;
+
+// ---------- 戰況回顧 ----------
+// 對局分鐘數；結束比開局早＝過了午夜
+function durMin(start, end) {
+  const t = x => { const [h, m] = x.split(':').map(Number); return h * 60 + m; };
+  const d = t(end) - t(start);
+  return d > 0 ? d : d + 1440;
+}
+const fmtDur = m => (m >= 60 ? `${Math.floor(m / 60)} 小時 ` : '') + `${m % 60} 分`;
+const perRound = s => s.start && s.end && s.rounds ? durMin(s.start, s.end) / s.rounds : null;
+
+const RP = { date: 'all', sel: new Set(), i: 0 };
+
+function replayList() {
+  return D.sessions.slice().reverse().filter(s =>
+    (RP.date === 'all' || s.date === RP.date) && [...RP.sel].every(n => s.results.some(r => r.name === n)));
+}
+
+function renderReplay() {
+  const app = $('replay');
+  if (!D.sessions.length) { app.innerHTML = '<div class="msg">還沒有任何對局紀錄</div>'; return; }
+  const dates = [...new Set(D.sessions.map(s => s.date))].reverse();
+  const names = RAW.players.filter(n => D.sessions.some(s => s.results.some(r => r.name === n)));
+  const L = replayList();
+  RP.i = Math.min(RP.i, Math.max(L.length - 1, 0));
+  const s = L[RP.i];
+  let table = '<div class="msg">沒有符合的牌桌，換個條件試試</div>';
+  if (s) {
+    const amts = s.results.map(r => r.amt), best = Math.max(...amts), worst = Math.min(...amts);
+    const seat = r => !r ? '<div></div>' : `<div class="seat">${avatar(r.name, best === worst ? 0 : r.amt === best ? 1 : r.amt === worst ? -1 : 0, 60)}<b>${esc(r.name)}</b><span class="num ${cls(r.amt)}">${fmt(r.amt)}</span></div>`;
+    const [n, e, so, w, ...rest] = s.results;
+    table = `<div class="stage" id="stage">
+      <div></div>${seat(n)}<div></div>
+      ${seat(w)}<div class="felt"><div style="font:400 19px var(--f-display);color:#e8ffe9">${esc(s.label)}</div>${s.start && s.end ? `<div class="num" style="font-size:13px;color:#bde8cf">${esc(s.start)}～${esc(s.end)}</div><div style="font-size:12px;color:#bde8cf">${s.rounds} 將・每將 ${Math.round(perRound(s))} 分</div>` : `<div style="font-size:12px;color:#bde8cf">${s.rounds} 將</div>`}</div>${seat(e)}
+      <div></div>${seat(so)}<div></div>
+    </div>${rest.length ? `<div class="extra">${rest.map(seat).join('')}</div>` : ''}`;
+  }
+  app.innerHTML = `
+    <div class="flt">日期</div>
+    <select class="in" id="rDate" style="font-size:14px"><option value="all">全部日期</option>${dates.map(d => `<option value="${d}" ${RP.date === d ? 'selected' : ''}>${shortDate(d)}</option>`).join('')}</select>
+    <div class="flt">人員（可多選，選兩人以上＝只看他們同桌的）</div>
+    <div class="chips">${names.map(n => `<button type="button" class="pc ${RP.sel.has(n) ? 'on' : ''}" data-p="${esc(n)}">${avatar(n, 0, 22)}${esc(n)}</button>`).join('')}</div>
+    <div class="rnav">
+      <button type="button" class="nb" id="rPrev" aria-label="上一桌">‹</button>
+      <div style="text-align:center"><div style="font:400 17px var(--f-display);color:var(--white)">${s ? esc(s.label) : '—'}</div><div style="font-size:12px;color:var(--sub)">${L.length ? `第 ${RP.i + 1} 桌／符合 ${L.length} 桌` : '符合 0 桌'}</div></div>
+      <button type="button" class="nb" id="rNext" aria-label="下一桌">›</button>
+    </div>
+    ${table}`;
+
+  $('rDate').onchange = e => { RP.date = e.target.value; RP.i = 0; renderReplay(); };
+  app.querySelectorAll('[data-p]').forEach(b => b.onclick = () => {
+    const n = b.dataset.p;
+    RP.sel.has(n) ? RP.sel.delete(n) : RP.sel.add(n);
+    RP.i = 0; renderReplay();
+  });
+  const go = d => { if (L.length) { RP.i = (RP.i + d + L.length) % L.length; renderReplay(); } };
+  $('rPrev').onclick = () => go(-1);
+  $('rNext').onclick = () => go(1);
+  const st = $('stage');
+  if (st) {
+    let x0 = null;
+    st.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
+    st.addEventListener('touchend', e => {
+      if (x0 === null) return;
+      const dx = e.changedTouches[0].clientX - x0; x0 = null;
+      if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
+    });
+  }
+}
+
+// ---------- 紀錄保持人 ----------
+function top3(items, better) {
+  return items.map(it => ({ ...it, rank: 1 + items.filter(o => better(o, it)).length }))
+    .filter(it => it.rank <= 3).sort((a, b) => a.rank - b.rank);
+}
+
+const dayNum = d => Date.UTC(...d.split('-').map((v, i) => i === 1 ? v - 1 : +v)) / 864e5;
+
+// 每人歷史最長的「日曆上連續有打」天數，附起訖日
+function streaks() {
+  return RAW.players.map(name => {
+    const ds = [...new Set(D.sessions.filter(s => s.results.some(r => r.name === name)).map(s => s.date))].sort();
+    let best = null, start = 0;
+    ds.forEach((d, i) => {
+      if (i && dayNum(d) - dayNum(ds[i - 1]) !== 1) start = i;
+      const len = i - start + 1;
+      if (!best || len > best.v) best = { v: len, from: ds[start], to: d };
+    });
+    return best && { name, v: best.v, sub: best.v > 1 ? `${shortDate(best.from)}～${shortDate(best.to)}` : shortDate(best.from) };
+  }).filter(Boolean);
+}
+
+const MEDAL = [['var(--gold)', 'var(--gold-ink)'], ['#cbd5e1', '#1e293b'], ['#e0a46e', '#3a2412']];
+
+function recBlock(title, list, val, helmetTop) {
+  const rows = list.map(it => `<div class="rec"><div class="medal num" style="background:${MEDAL[it.rank - 1][0]};color:${MEDAL[it.rank - 1][1]}">${it.rank}</div>${avatar(it.name, 0, 38, helmetTop && it.rank === 1)}<div class="nm">${esc(it.name)}${it.sub ? `<small>${esc(it.sub)}</small>` : ''}</div>${val(it)}</div>`).join('');
+  return `<div class="sec">${title}</div><div class="recs">${rows || '<div class="hint" style="padding:10px 0">還沒有紀錄</div>'}</div>`;
+}
+
+// 最快／最慢：每列是那一桌的頭像；只列第一（同分並列）
+function tableBlock(title, list) {
+  const rows = list.map(it => `<div class="rec"><div class="medal num" style="background:${MEDAL[it.rank - 1][0]};color:${MEDAL[it.rank - 1][1]}">${it.rank}</div>
+    <div class="nm"><div style="display:flex;gap:2px">${it.s.results.map(r => avatar(r.name, 0, 32)).join('')}</div><small>${esc(it.s.label)}・${esc(it.s.start)}～${esc(it.s.end)}</small></div>
+    <span class="num" style="color:var(--white)">${it.v} 分</span></div>`).join('');
+  return `<div class="sec">${title}</div><div class="recs">${rows || '<div class="hint" style="padding:10px 0">還沒有記時間的桌</div>'}</div>`;
+}
+
+function renderRecords() {
+  const app = $('records');
+  if (!D.sessions.length) { app.innerHTML = '<div class="msg">還沒有任何對局紀錄</div>'; return; }
+  const timed = D.sessions.filter(s => perRound(s) !== null).map(s => ({ s, v: Math.round(perRound(s)) }));
+  const singles = D.sessions.flatMap(s => s.results.map(r => ({ name: r.name, v: r.amt, sub: s.label })));
+  const attend = D.active.map(p => ({ name: p.name, v: p.played.length }));
+  const money = it => `<span class="num ${cls(it.v)}">${fmt(it.v)}</span>`;
+  app.innerHTML =
+    recBlock('單場最贏', top3(singles.filter(x => x.v > 0), (a, b) => a.v > b.v), money) +
+    recBlock('單場最輸', top3(singles.filter(x => x.v < 0), (a, b) => a.v < b.v), money) +
+    recBlock('出席（打了幾桌）', top3(attend, (a, b) => a.v > b.v), it => `<span class="num" style="color:var(--white)">${it.v} 桌</span>`) +
+    recBlock('連續戰鬥天數', top3(streaks(), (a, b) => a.v > b.v), it => `<span class="num" style="color:var(--white)">${it.v} 天</span>`, true) +
+    tableBlock('最快場次（每將平均）', top3(timed, (a, b) => a.v < b.v).filter(it => it.rank === 1)) +
+    tableBlock('最慢場次（每將平均）', top3(timed, (a, b) => a.v > b.v).filter(it => it.rank === 1));
+}
+
+const VIEW_NAME = { board: 'Rank', replay: '戰況回顧', records: '紀錄保持人' };
+let view = 'board';
+function showView(v) {
+  view = v;
+  $('board').hidden = v !== 'board';
+  $('replay').hidden = v !== 'replay';
+  $('records').hidden = v !== 'records';
+  $('entry').hidden = true;
+  $('views').hidden = false;
+  $('toEntry').textContent = '記帳';
+  $('title').innerHTML = VIEW_NAME[v] + '<span class="season num">S1</span>';
+  document.querySelectorAll('#views .tab').forEach(t => t.classList.toggle('on', t.dataset.v === v));
+}
+
+const CAT_TOP = ['.........K...K..', '.........KK.KK..', '....KKKKKKKKKKK.', '..KKKDKKKKEKKEK.', '.KKKKKDKKKKKPKKK', 'TKKDKKKKDKKKKKKK', 'TKKKKDKKKKDKKKK.', '.KKKKKKKKKKKKKK.', '..KKWWWWWWWWKK..', '...KKKKKKKKKK...'];
+const CAT_LEGS = [['...K.K....K.K...'], ['....KK....KK....'], ['..K..K...K..K...'], ['....KK....KK....']];
+function catLoader(text) {
+  const c = { K: '#f59e0b', D: '#c2410c', T: '#f59e0b', E: '#111111', P: '#f472b6', W: '#fcd34d' };
+  const px = (rows, y0) => rows.map((r, y) => [...r].map((ch, x) => ch === '.' ? '' : `<rect x="${x}" y="${y + y0}" width="1" height="1" fill="${c[ch]}"/>`).join('')).join('');
+  const frames = CAT_LEGS.map((l, i) => `<g style="animation-delay:${(i * 0.14 - 0.56).toFixed(2)}s">${px(l, 10)}</g>`).join('');
+  return `<div class="msg"><div class="walk"><svg width="64" height="44" viewBox="0 0 16 11" shape-rendering="crispEdges" aria-hidden="true">${px(CAT_TOP, 0)}${frames}</svg></div><div class="road"></div>${text}</div>`;
+}
+
+async function load() {
+  $('meta').textContent = '讀取中…';
+  try {
+    const res = await fetch(API_URL + '?t=' + Date.now(), { cache: 'no-store' });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error || '後端回傳錯誤');
+    RAW = json;
+    D = build(json);
+    $('meta').textContent = `資料更新至 ${D.last}・共 ${D.sessions.length} 桌`;
+    renderBoard();
+    renderReplay();
+    renderRecords();
+    return true;
+  } catch (e) {
+    $('meta').textContent = '讀取失敗';
+    $('board').innerHTML = `<div class="msg err">讀不到資料：${esc(e.message || e)}</div>`;
+    return false;
+  }
+}
+
+// ---------- 記帳 ----------
+// F = 表單狀態；sign 1 = 贏、-1 = 輸。一天只有一桌；帳平＝大家輸贏合計 0（沒有東錢）
+let F = null;
+
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+const nowHM = () => { const d = new Date(); return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
+
+function newForm(mode) {
+  // 結束時間先帶現在；開局沒填就當這桌沒填時間
+  return { mode, id: null, date: todayStr(), picked: [], vals: {}, rounds: '', start: '', end: mode === 'new' ? nowHM() : '', by: store.get('mj_by') || '', extra: [], confirming: false, err: '', sending: false };
+}
+
+function showEntry(on) {
+  if (!on) { showView(view); window.scrollTo(0, 0); return; }
+  $('entry').hidden = false;
+  $('views').hidden = true;
+  $('board').hidden = $('replay').hidden = $('records').hidden = true;
+  $('toEntry').textContent = '回' + VIEW_NAME[view];
+  $('title').innerHTML = '記帳<span class="season num">S1</span>';
+  F = newForm('new'); renderEntry();
+  window.scrollTo(0, 0);
+}
+
+function allPlayers() {
+  return [...RAW.players, ...F.extra.filter(n => !RAW.players.includes(n))];
+}
+
+const takenDate = () => F.mode === 'new' && RAW.sessions.some(s => s.date === F.date);
+
+function calc() {
+  const sum = F.picked.reduce((a, n) => a + (F.vals[n] && F.vals[n].v !== '' ? Number(F.vals[n].v) * F.vals[n].s : 0), 0);
+  const missing = F.picked.filter(n => !F.vals[n] || F.vals[n].v === '');
+  let reason = '';
+  if (F.mode === 'edit' && !F.id) reason = '先選要改的那一桌';
+  else if (takenDate()) reason = `${shortDate(F.date)} 已經記過了，要改請用「修改舊的」`;
+  else if (F.picked.length < 2) reason = '至少選 2 個人';
+  else if (missing.length) reason = '還沒填金額：' + missing.join('、');
+  else if (!Number(F.rounds)) reason = '還沒填將數';
+  else if (sum !== 0) reason = '帳不平，差 ' + fmt(-sum);
+  else if (F.start && !F.end) reason = '還沒填結束時間';
+  else if (F.start && F.start === F.end) reason = '開局和結束時間不能一樣';
+  else if (!F.by) reason = '先選「我是誰」';
+  return { sum, ok: !reason, reason };
+}
+
+function renderEntry() {
+  const sessionsDesc = RAW.sessions.slice().reverse();
+  const locked = F.mode === 'edit';
+  $('entry').innerHTML = `
+    <div class="tabs">
+      <button type="button" class="tab ${F.mode === 'new' ? 'on' : ''}" data-mode="new">新增一桌</button>
+      <button type="button" class="tab ${F.mode === 'edit' ? 'on' : ''}" data-mode="edit">修改舊的</button>
+    </div>
+    ${locked ? `<div class="sec">選要改的那一桌</div><div class="chips">${sessionsDesc.map(s => `<button type="button" class="pc ${F.id === s.id ? 'on' : ''}" data-sid="${esc(s.id)}">${esc(s.label)}</button>`).join('') || '<span class="hint">還沒有任何紀錄</span>'}</div>` : ''}
+    ${!locked || F.id ? `
+    <div class="sec">日期</div>
+    <input class="in" type="date" id="fDate" value="${esc(F.date)}" ${locked ? 'disabled' : ''}>
+    ${locked ? '<div class="hint">改完送出會覆蓋這一桌，改前的數字會留在修改紀錄</div>' : ''}
+
+    <div class="sec">誰有打</div>
+    <div class="chips" id="fChips">${allPlayers().map(n => `<button type="button" class="pc ${F.picked.includes(n) ? 'on' : ''}" data-n="${esc(n)}">${avatar(n, 0, 22)}${esc(n)}</button>`).join('')}</div>
+    <div style="display:flex;gap:6px;margin-top:8px"><input class="in" id="fNew" placeholder="新玩家名字" maxlength="20" style="flex:1"><button type="button" class="pc dash" id="fAdd">＋加入</button></div>
+
+    <div class="sec">每人輸贏</div>
+    <div id="fLines">${F.picked.length ? F.picked.map(n => {
+      const v = F.vals[n] || { v: '', s: 1 };
+      return `<div class="line">${avatar(n, 0, 30)}<span style="flex:1;color:var(--white);min-width:0;overflow:hidden;text-overflow:ellipsis">${esc(n)}</span>
+        <button type="button" class="sg" data-sg="${esc(n)}" style="color:${v.s > 0 ? 'var(--win)' : 'var(--lose)'}">${v.s > 0 ? '贏' : '輸'}</button>
+        <input class="in num" type="number" inputmode="numeric" min="0" step="1" data-amt="${esc(n)}" value="${esc(v.v)}" placeholder="金額" style="width:110px"></div>`;
+    }).join('') : '<div class="hint">先在上面選人</div>'}</div>
+
+    <div class="sec">將數與時間</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <div><div class="hint" style="margin:0 0 4px">將數</div><input class="in num" type="number" inputmode="numeric" min="1" step="1" id="fRounds" value="${esc(F.rounds)}"></div>
+      <div><div class="hint" style="margin:0 0 4px">開局</div><input class="in" type="time" id="fStart" value="${esc(F.start)}"></div>
+      <div><div class="hint" style="margin:0 0 4px">結束</div><input class="in" type="time" id="fEnd" value="${esc(F.end)}"></div>
+    </div>
+    <div class="hint" id="fDur"></div>
+
+    <div class="sec">我是誰</div>
+    <select class="in" id="fBy"><option value="">選你自己</option>${allPlayers().map(n => `<option ${F.by === n ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select>
+
+    <div class="bal" id="fBal"></div>
+    <button type="button" class="go" id="fGo">送出</button>
+    <div id="fMsg"></div>` : ''}`;
+  bindEntry();
+  updateBal();
+}
+
+function updateBal() {
+  const box = $('fBal');
+  if (!box) return;
+  const c = calc();
+  const m = F.start && F.end && F.start !== F.end ? durMin(F.start, F.end) : 0;
+  $('fDur').textContent = m ? `共 ${fmtDur(m)}${Number(F.rounds) ? `・每將平均 ${Math.round(m / Number(F.rounds))} 分` : ''}` : '沒填開局時間的話，這桌就不記時間；結束比開局早＝過了午夜';
+  box.style.background = c.ok ? '#0f3b33' : '#3b1420';
+  box.style.color = c.ok ? 'var(--win)' : 'var(--lose)';
+  box.innerHTML = `大家輸贏合計 <span class="num">${fmt(c.sum)}</span><br><b>${c.ok ? '帳平了，可以送出' : esc(c.reason)}</b>`;
+  const go = $('fGo');
+  go.style.background = c.ok ? 'var(--accent)' : 'var(--line)';
+  go.style.color = c.ok ? 'var(--accent-ink)' : 'var(--dim)';
+  renderMsg();
+}
+
+function renderMsg() {
+  const m = $('fMsg');
+  if (!m) return;
+  if (F.err) { m.innerHTML = `<div class="err-t">${esc(F.err)}</div>`; return; }
+  if (!F.confirming) { m.innerHTML = ''; return; }
+  const label = F.mode === 'edit' ? RAW.sessions.find(s => s.id === F.id).label : shortDate(F.date);
+  m.innerHTML = `<div class="confirm">
+    <div style="color:var(--white);font-weight:500">${F.mode === 'edit' ? '確定覆蓋' : '確定新增'}「${esc(label)}」？</div>
+    ${F.picked.map(n => `${esc(n)} <span class="num ${cls(F.vals[n].v * F.vals[n].s)}">${fmt(F.vals[n].v * F.vals[n].s)}</span>`).join('、')}<br>
+    ${Number(F.rounds)} 將・記帳人 ${esc(F.by)}${F.start && F.end ? `<br>時間 ${esc(F.start)}～${esc(F.end)}（${fmtDur(durMin(F.start, F.end))}）` : ''}
+    <div style="display:flex;gap:6px;margin-top:10px">
+      <button type="button" class="btn pri" id="fYes" style="flex:1;padding:10px">${F.sending ? '寫入中…' : '確定寫入'}</button>
+      <button type="button" class="btn" id="fNo" style="flex:1;padding:10px">再改一下</button>
+    </div></div>`;
+  $('fYes').onclick = submit;
+  $('fNo').onclick = () => { F.confirming = false; renderMsg(); };
+}
+
+function bindEntry() {
+  document.querySelectorAll('#entry .tab').forEach(b => b.onclick = () => { F = newForm(b.dataset.mode); renderEntry(); });
+  document.querySelectorAll('#entry [data-sid]').forEach(b => b.onclick = () => {
+    const s = RAW.sessions.find(x => x.id === b.dataset.sid);
+    F = newForm('edit');
+    F.id = s.id; F.date = s.date; F.rounds = String(s.rounds); F.start = s.start || ''; F.end = s.end || '';
+    s.results.forEach(r => { F.picked.push(r.name); F.vals[r.name] = { v: String(Math.abs(r.amt)), s: r.amt < 0 ? -1 : 1 }; });
+    renderEntry();
+  });
+  if (!$('fChips')) return;
+  const dirty = () => { F.confirming = false; F.err = ''; updateBal(); };
+  $('fDate').onchange = e => { F.date = e.target.value || todayStr(); dirty(); };
+  document.querySelectorAll('#fChips .pc').forEach(b => b.onclick = () => {
+    const n = b.dataset.n;
+    if (F.picked.includes(n)) F.picked = F.picked.filter(x => x !== n);
+    else { F.picked.push(n); if (!F.vals[n]) F.vals[n] = { v: '', s: 1 }; }
+    F.confirming = false; F.err = '';
+    renderEntry();
+  });
+  $('fAdd').onclick = () => {
+    const n = $('fNew').value.trim();
+    if (!n) { F.err = '先輸入新玩家名字'; renderMsg(); return; }
+    if (n === '日期' || n === '將數') { F.err = '不能用這個名字'; renderMsg(); return; }
+    if (!allPlayers().includes(n)) F.extra.push(n);
+    if (!F.picked.includes(n)) { F.picked.push(n); F.vals[n] = { v: '', s: 1 }; }
+    F.err = '';
+    renderEntry();
+  };
+  document.querySelectorAll('#fLines [data-sg]').forEach(b => b.onclick = () => {
+    const v = F.vals[b.dataset.sg]; v.s *= -1;
+    b.textContent = v.s > 0 ? '贏' : '輸';
+    b.style.color = v.s > 0 ? 'var(--win)' : 'var(--lose)';
+    dirty();
+  });
+  document.querySelectorAll('#fLines [data-amt]').forEach(i => i.oninput = () => {
+    F.vals[i.dataset.amt].v = i.value.replace(/[^\d]/g, '');
+    dirty();
+  });
+  $('fRounds').oninput = e => { F.rounds = e.target.value.replace(/[^\d]/g, ''); dirty(); };
+  $('fStart').oninput = e => { F.start = e.target.value; dirty(); };
+  $('fEnd').oninput = e => { F.end = e.target.value; dirty(); };
+  $('fBy').onchange = e => { F.by = e.target.value; store.set('mj_by', F.by); dirty(); };
+  $('fGo').onclick = () => {
+    const c = calc();
+    F.err = c.ok ? '' : c.reason;
+    F.confirming = c.ok;
+    renderMsg();
+  };
+}
+
+async function submit() {
+  if (F.sending) return;
+  F.sending = true; renderMsg();
+  const payload = {
+    action: 'save', id: F.id || undefined, date: F.date, by: F.by,
+    rounds: Number(F.rounds),
+    start: F.start && F.end ? F.start : '', end: F.start && F.end ? F.end : '',
+    results: F.picked.map(n => ({ name: n, amt: Number(F.vals[n].v) * F.vals[n].s }))
+  };
+  try {
+    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error || '寫入失敗');
+    await load();
+    showEntry(false);
+    $('board').insertAdjacentHTML('afterbegin', `<div class="msg okk">已寫入「${esc(json.label)}」</div>`);
+  } catch (e) {
+    F.sending = false; F.confirming = false;
+    F.err = '沒有寫進去：' + (e.message || e);
+    renderMsg();
+  }
+}
+
+$('hIcon').innerHTML = LOGO;
+document.querySelectorAll('#views .tab').forEach(t => t.addEventListener('click', () => showView(t.dataset.v)));
+$('reload').addEventListener('click', async () => { await load(); if (!$('entry').hidden) showEntry(true); });
+$('toEntry').addEventListener('click', () => {
+  if (!RAW) return;
+  showEntry($('entry').hidden);
+});
+$('board').innerHTML = catLoader('洗牌中…');
+load();
+</script>
+</body>
+</html>
