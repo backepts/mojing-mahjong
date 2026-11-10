@@ -1,0 +1,23 @@
+{
+  "name": "魔競娛樂麻將間 LAB",
+  "short_name": "魔競娛樂麻將間 LAB",
+  "description": "魔競娛樂麻將間的麻將天梯與記帳",
+  "lang": "zh-Hant",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#14121f",
+  "theme_color": "#14121f",
+  "icons": [
+    {
+      "src": "../icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "../icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

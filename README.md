@@ -2,6 +2,15 @@
 
 第二個麻將群組的輸贏網頁。從「番仔麻將天梯」（~/番仔麻將天梯）複製出來，完全獨立：自己的網址、主表、GAS，兩邊資料互不相干。
 
+## 系統
+
+- 主表：https://docs.google.com/spreadsheets/d/1OSC-eaLSQ1iFHfCtfLHzVFMApyT5ZvcuYevKRhHGQKQ/edit
+- GAS 專案：https://script.google.com/d/10VEV9IMvfFpoEQP6IdPoGW-qPUQF2mv6VYLkwJEmXh4C7MTzNJ0vATW6/edit
+- clasp 一律帶 `-u personal`（個人帳號）
+- 主表分頁：對局紀錄（場次ID｜日期｜玩家｜輸贏｜寫入時間）、牌桌（場次ID｜日期｜將數｜開局｜結束｜寫入時間）、玩家（玩家｜加入日期｜造型）、修改紀錄、總覽（程式重畫，別手改）
+- 造型可選：約克夏／白貓／凱蒂風白貓／白底虎斑／煙灰長毛／橘白長毛（玩家分頁 C 欄，空白＝自動配）
+- 檔案：index.html 前台、gas/ 後端、test/core.test.js（`node test/core.test.js`）、tools/build_lab.py 產生 lab/、tools/make_icons.py 產生 icons/
+
 ## 需求（2026-11-10 和 Beck 確認）
 
 - 帳號：都放 Beck 個人帳號 becktsai0708（GitHub backepts、Google）
@@ -16,9 +25,9 @@
 
 ## 目前進度
 
-- 做到哪：後端（gas/core.js、Code.js）＋前台 index.html 寫好，本機假資料驗過；還沒開主表／GAS／GitHub
-- 下一步：開新主表＋GAS（個人帳號）→ setup → 部署 Web App → 寫入 11/9 第一桌 → 開 GitHub repo mojing-mahjong＋Pages
-- 等 Beck 決定：同意開主表、GAS、GitHub repo（公開網址）
+- 做到哪：主表＋GAS 已建、程式已 push；圖示、manifest、LAB 產生器做好
+- 下一步：Beck 在 GAS 編輯器跑 setup 授權 → gas-deploy 部署 Web App → 填 API_URL → 開 GitHub repo mojing-mahjong＋Pages → 寫入 11/9 第一桌 → LAB 給 Beck 試
+- 等 Beck 決定：跑 setup（要她本人授權）
 
 ## 第一筆資料（Beck 11-10 給，待寫入）
 
