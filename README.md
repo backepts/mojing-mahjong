@@ -4,6 +4,8 @@
 
 ## 系統
 
+- 網頁：https://backepts.github.io/mojing-mahjong/ （LAB：/lab/，送出只在瀏覽器模擬）
+- Web App 部署 ID：AKfycbwyhObl4NV1Q1LJg3Oj3cwDSQFodOQvmz4PljSRQ0xtD59S6Gi-MFVBu6ESEQdAhLh9（更新用 `clasp -u personal deploy -i <ID>`，網址不變）
 - 主表：https://docs.google.com/spreadsheets/d/1OSC-eaLSQ1iFHfCtfLHzVFMApyT5ZvcuYevKRhHGQKQ/edit
 - GAS 專案：https://script.google.com/d/10VEV9IMvfFpoEQP6IdPoGW-qPUQF2mv6VYLkwJEmXh4C7MTzNJ0vATW6/edit
 - clasp 一律帶 `-u personal`（個人帳號）
@@ -13,7 +15,7 @@
 
 ## 需求（2026-11-10 和 Beck 確認）
 
-- 帳號：都放 Beck 個人帳號 becktsai0708（GitHub backepts、Google）
+- 帳號：都放 Beck 個人帳號（GitHub backepts、Google 個人帳號）
 - 網址：backepts.github.io/mojing-mahjong
 - 功能：Rank＋個人戰績卡、記帳（新增／修改一桌）、戰況回顧、紀錄保持人、對局時間
 - 不要：東錢（抽頭）、付款碼／通關密語、A／B 組別（一天只會一桌）
@@ -25,10 +27,10 @@
 
 ## 目前進度
 
-- 做到哪：主表＋GAS 已建、程式已 push；圖示、manifest、LAB 產生器做好
-- 下一步：Beck 在 GAS 編輯器跑 setup 授權 → gas-deploy 部署 Web App → 填 API_URL → 開 GitHub repo mojing-mahjong＋Pages → 寫入 11/9 第一桌 → LAB 給 Beck 試
-- 等 Beck 決定：跑 setup（要她本人授權）
+- 做到哪：主表、GAS（@1）、GitHub Pages 都上了；11/9 第一桌已寫入；LAB 給 Beck 試
+- 下一步：Beck 試 LAB → 說可以就把正式網址給群組；決定約克夏頭上的「愛心」要不要改
+- 等 Beck 決定：LAB 驗收、約克夏頭飾
 
-## 第一筆資料（Beck 11-10 給，待寫入）
+## 第一筆資料（Beck 11-10 給，已寫入）
 
 - 2026-11-09，3 將，19:40～00:30（過午夜，共 4 小時 50 分，每將約 97 分）：Fanny +920、Luke +1,580、MM −20、Beck −2,480（Beck 給的是 −900−1580，合計 −2,480；四人合計 0）
