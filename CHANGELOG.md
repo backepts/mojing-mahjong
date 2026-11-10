@@ -8,3 +8,4 @@
 - 2026-11-10 建主表＋GAS（個人帳號）並 push；桌面圖示（紅中長貓耳）、manifest、LAB 產生器
 - 2026-11-10 Web App 首次部署 @1；寫入 11/9 第一桌；開 GitHub repo backepts/mojing-mahjong＋Pages
 - 2026-11-10 Beck 試過 LAB，正式網址交給群組，上線完成
+- 2026-11-10 讀取中動畫改成六隻貓狗排隊走路（LAB）

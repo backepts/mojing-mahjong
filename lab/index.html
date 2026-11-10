@@ -92,13 +92,17 @@ footer{margin-top:28px;text-align:center;font-size:11px;color:var(--dim)}
 .seat .num{font-size:15px;font-weight:600}
 .felt{width:100%;max-width:160px;aspect-ratio:1;background:#1e6b4f;border:6px solid #6b3f1f;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center}
 .extra{display:flex;justify-content:center;gap:10px;margin-top:10px;flex-wrap:wrap}
-/* 讀取中：胖胖像素橘貓走路 */
-.walk{position:relative;height:44px;overflow:hidden;margin:0 0 4px}
-.walk svg{position:absolute;top:0;animation:walk 4.5s linear infinite}
-.walk g{visibility:hidden;animation:frame .56s steps(1) infinite}
+/* 讀取中：六隻像素貓狗排隊走路（整排左到右移動＋每隻輪流踏步、上下晃） */
+.walk{position:relative;height:42px;overflow:hidden;margin:0 0 4px}
+.walk svg{position:absolute;top:2px;animation:walk 6s linear infinite}
+.walk .ani{animation:bob .4s steps(1) infinite}
+.walk .la{animation:legA .4s steps(1) infinite}
+.walk .lb{animation:legB .4s steps(1) infinite}
 .road{height:2px;margin:2px 0 12px;background:repeating-linear-gradient(90deg,var(--line) 0 6px,transparent 6px 12px)}
-@keyframes walk{from{left:-64px}to{left:100%}}
-@keyframes frame{0%{visibility:visible}25%,100%{visibility:hidden}}
+@keyframes walk{from{left:-250px}to{left:100%}}
+@keyframes bob{0%{transform:translateY(0)}50%{transform:translateY(-1px)}}
+@keyframes legA{0%{visibility:visible}50%{visibility:hidden}}
+@keyframes legB{0%{visibility:hidden}50%{visibility:visible}}
 /* 紀錄保持人 */
 .recs{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px 12px}
 .rec{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
@@ -109,7 +113,7 @@ footer{margin-top:28px;text-align:center;font-size:11px;color:var(--dim)}
 .rec .num{font-size:15px;font-weight:600}
 .ico{flex:none;display:block}
 .pc .ico{display:inline-block;vertical-align:-5px;margin:-2px 4px -2px -4px}
-@media (prefers-reduced-motion: reduce){.rise,.walk svg,.walk g{animation:none}.walk g:first-of-type{visibility:visible}}
+@media (prefers-reduced-motion: reduce){.rise,.walk svg,.walk .ani,.walk .la,.walk .lb{animation:none}.walk .lb{visibility:hidden}}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -475,13 +479,19 @@ function showView(v) {
   document.querySelectorAll('#views .tab').forEach(t => t.classList.toggle('on', t.dataset.v === v));
 }
 
-const CAT_TOP = ['.........K...K..', '.........KK.KK..', '....KKKKKKKKKKK.', '..KKKDKKKKEKKEK.', '.KKKKKDKKKKKPKKK', 'TKKDKKKKDKKKKKKK', 'TKKKKDKKKKDKKKK.', '.KKKKKKKKKKKKKK.', '..KKWWWWWWWWKK..', '...KKKKKKKKKK...'];
-const CAT_LEGS = [['...K.K....K.K...'], ['....KK....KK....'], ['..K..K...K..K...'], ['....KK....KK....']];
+// 讀取中動畫：六隻貓狗排一列走路。這時還沒讀到主表，所以固定用六種造型，不看誰是誰
+const PARADE = ['約克夏', '白貓', '凱蒂風白貓', '白底虎斑', '煙灰長毛', '橘白長毛'];
 function catLoader(text) {
-  const c = { K: '#f59e0b', D: '#c2410c', T: '#f59e0b', E: '#111111', P: '#f472b6', W: '#fcd34d' };
-  const px = (rows, y0) => rows.map((r, y) => [...r].map((ch, x) => ch === '.' ? '' : `<rect x="${x}" y="${y + y0}" width="1" height="1" fill="${c[ch]}"/>`).join('')).join('');
-  const frames = CAT_LEGS.map((l, i) => `<g style="animation-delay:${(i * 0.14 - 0.56).toFixed(2)}s">${px(l, 10)}</g>`).join('');
-  return `<div class="msg"><div class="walk"><svg width="64" height="44" viewBox="0 0 16 11" shape-rendering="crispEdges" aria-hidden="true">${px(CAT_TOP, 0)}${frames}</svg></div><div class="road"></div>${text}</div>`;
+  const px = (row, y, c, ox) => [...row].map((ch, x) => ch === '.' ? '' : `<rect x="${ox + x}" y="${y}" width="1" height="1" fill="${c[ch]}"/>`).join('');
+  const body = PARADE.map((k, i) => {
+    const sp = SPRITES[k], ox = i * 14, legs = sp.rows[11];
+    const ch = [...legs].find(x => x !== '.');
+    const step = '...' + ch + ch + '..' + ch + ch + '...';
+    const delay = `animation-delay:${(i % 2) * -0.2}s`;
+    return `<g class="ani" style="${delay}">${sp.rows.slice(0, 11).map((r, y) => px(r, y, sp.c, ox)).join('')}
+      <g class="la" style="${delay}">${px(legs, 11, sp.c, ox)}</g><g class="lb" style="${delay}">${px(step, 11, sp.c, ox)}</g></g>`;
+  }).join('');
+  return `<div class="msg"><div class="walk"><svg width="246" height="36" viewBox="0 0 82 12" shape-rendering="crispEdges" aria-hidden="true">${body}</svg></div><div class="road"></div>${text}</div>`;
 }
 
 async function load() {
