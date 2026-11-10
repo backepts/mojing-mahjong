@@ -27,9 +27,9 @@
 
 ## 目前進度
 
-- 做到哪：主表、GAS（@1）、GitHub Pages 都上了；11/9 第一桌已寫入；LAB 給 Beck 試
-- 下一步：Beck 試 LAB → 說可以就把正式網址給群組
-- 等 Beck 決定：LAB 驗收
+- 做到哪：已上線（2026-11-10），Beck 把正式網址給群組；後端 @1，主表有 11/9 第一桌
+- 下一步：無；之後改版照番仔流程：改 index.html → `python3 tools/build_lab.py` → push 給 Beck 看 LAB → 同意才算正式
+- 等 Beck 決定：無
 
 ## 第一筆資料（Beck 11-10 給，已寫入）
 
