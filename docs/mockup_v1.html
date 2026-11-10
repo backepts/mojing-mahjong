@@ -160,9 +160,9 @@ const SPRITES = {
     'KKFEFFFFEFKK', 'FFFFFYYFFFFF', 'KKFFFFFFFFKK', '..FFFFFFFF..', '.BBBBBBBBBB.', '..FF....FF..'],
     c: { F: '#fbfbfd', I: '#f9a8c8', R: '#e11d48', E: '#1a1a2e', Y: '#facc15', K: '#4b4b5a', B: '#f472b6' } },
   MM: { kind: '白底棕虎斑', rows: [
-    '.T........T.', '.TT......TT.', '.TIT....TIT.', '.TDTDTDTTTT.', 'TTTTDTTTTTTT', 'WWhEWWTThETT',
-    'WWEEWWWTEETT', 'WCWWWNNWWTCT', '.WWWWMMWWTT.', '..WWWWWWTT..', '.WWWWWWWWWW.', '..WW....WW..'],
-    c: { T: '#a47148', D: '#5c3b22', W: '#f6f1ea', I: '#e8a0a8', h: '#ffffff', E: '#5f9e8f', N: '#e89aa0', C: '#f2c4c4', M: '#b0786c' } },
+    '.T........T.', '.TT......TT.', '.TIT....TIT.', '.TDTTWWTTDT.', 'TTTDTWWTDTTT', 'TThETWWThETT',
+    'TTEETWWTEETT', 'DTTTWNNWTTTD', '.TWWWMMWWWT.', '..WWWWWWWW..', '.TWWWWWWWWT.', '..WW....WW..'],
+    c: { T: '#b47c48', D: '#5c3b22', W: '#f6f1ea', I: '#e8a0a8', h: '#ffffff', E: '#8fae9a', N: '#f0a0a8', M: '#b0786c' } },
   Luke: { kind: '煙灰長毛', rows: [
     '............', '.G........G.', '.GIG....GIG.', 'GGGGGGGGGGGG', 'GGGGGGGGGGGG', 'GGhEGGGGhEGG',
     'GGEEGGGGEEGG', 'GGGGGNNGGGGG', 'LGGGGMMGGGGL', 'LLGGGGGGGGLL', '.LLLLLLLLLL.', '..GG....GG..'],
@@ -192,19 +192,29 @@ function avatar(name, mood = 0, size = 56, helmet = false) {
     if (ch === '.') return;
     let col = sp.c[ch];
     if (mood < 0 && ch === 'M') col = '#7a2e2e';
+    if (mood < 0 && ch === 'h') col = sp.c.E;
     o += `<rect x="${x + 1}" y="${y + 2}" width="1" height="1" fill="${col}"/>`;
   }));
-  // 輸家：眉毛往內下壓（生氣）＋右上角紅色青筋
+  // 輸家生氣：粗眉斜壓進眼睛（瞇眼瞪人）、眼睛沒反光、紅臉頰、嘴角往下、右上角大青筋
   if (mood < 0) {
-    const eyes = [[], []];
-    sp.rows.forEach((r, y) => [...r].forEach((ch, x) => { if ('Eh'.includes(ch)) eyes[x < 6 ? 0 : 1].push([x, y]); }));
+    const dot = (x, y, f) => o += `<rect x="${x + 1}" y="${y + 2}" width="1" height="1" fill="${f}"/>`;
+    const eyes = [[], []], mouth = [];
+    sp.rows.forEach((r, y) => [...r].forEach((ch, x) => {
+      if ('Eh'.includes(ch)) eyes[x < 6 ? 0 : 1].push([x, y]);
+      if (ch === 'M') mouth.push([x, y]);
+    }));
     eyes.forEach((pts, side) => {
       if (!pts.length) return;
-      const x0 = Math.min(...pts.map(p => p[0])), x1 = Math.max(...pts.map(p => p[0])), y0 = Math.min(...pts.map(p => p[1])) + 2;
-      const outer = side === 0 ? x0 - 1 : x1 + 1, inner = side === 0 ? x1 : x0;
-      o += `<rect x="${outer + 1}" y="${y0 - 2}" width="1" height="1" fill="#1a1a2e"/><rect x="${inner + 1}" y="${y0 - 1}" width="1" height="1" fill="#1a1a2e"/>`;
+      const x0 = Math.min(...pts.map(p => p[0])), x1 = Math.max(...pts.map(p => p[0])), y0 = Math.min(...pts.map(p => p[1])), yb = Math.max(...pts.map(p => p[1]));
+      const out = side === 0 ? -1 : 1, outer = side === 0 ? x0 : x1, inner = side === 0 ? x1 : x0;
+      dot(outer + out, y0 - 2, '#1a1a2e'); dot(outer, y0 - 1, '#1a1a2e'); dot(inner, y0 - 1, '#1a1a2e'); dot(inner, y0, '#1a1a2e'); dot(inner - out, y0, '#1a1a2e');
+      dot(outer + out, yb + 1, '#f87171');
     });
-    [[11, 0], [13, 0], [12, 1], [11, 2], [13, 2]].forEach(([x, y]) => o += `<rect x="${x}" y="${y}" width="1" height="1" fill="#ef4444"/>`);
+    if (mouth.length) {
+      const my = mouth[0][1], mx0 = Math.min(...mouth.map(p => p[0])), mx1 = Math.max(...mouth.map(p => p[0]));
+      dot(mx0 - 1, my + 1, '#7a2e2e'); dot(mx1 + 1, my + 1, '#7a2e2e');
+    }
+    ['.R.R.', 'RR.RR', '.....', 'RR.RR', '.R.R.'].forEach((r, y) => [...r].forEach((ch, x) => { if (ch === 'R') o += `<rect x="${x + 9}" y="${y}" width="1" height="1" fill="#ef4444"/>`; }));
   }
   if (helmet) HELMET.forEach((r, y) => [...r].forEach((ch, x) => { if (ch !== '.') o += `<rect x="${x + 1}" y="${y}" width="1" height="1" fill="${HELMET_C[ch]}"/>`; }));
   return `<svg class="ico" width="${size}" height="${size}" viewBox="0 0 14 14" shape-rendering="crispEdges" aria-hidden="true">${o}</svg>`;
