@@ -1,0 +1,424 @@
+<title>魔競麻將娛樂間</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700&family=Fredoka:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* 版面：上方是模擬圖控制區（配色／圖示／頭像），下方是手機 app 本體；app 有兩套配色，用 data-skin 切換 */
+:root{
+  color-scheme: dark;
+  --bg:#14121f; --card:#1f1c30; --card2:#29243f; --line:#353050; --accent:#fbbf24; --accent-ink:#3b2500;
+  --text:#ece8f6; --sub:#a39cc0; --dim:#77709a; --white:#ffffff; --ava-bg:transparent;
+  --win:#5eead4; --lose:#fb7185; --gold:#facc15; --gold-ink:#3b2f00; --felt:#1e6b4f; --felt-rim:#6b3f1f; --felt-ink:#e8ffe9; --felt-sub:#bde8cf;
+  --ok-bg:#0f3b33; --bad-bg:#3b1420;
+  --f-display:"Huninn","Noto Sans TC",system-ui,sans-serif;
+  --f-body:"Noto Sans TC",system-ui,sans-serif;
+  --f-num:"Fredoka","Noto Sans TC",system-ui,sans-serif;
+}
+[data-skin="milk"]{
+  color-scheme: light;
+  --bg:#f4ece1; --card:#fffaf3; --card2:#fff1df; --line:#e7d7c3; --accent:#c2552b; --accent-ink:#fff8f0;
+  --text:#4a3527; --sub:#8c6c55; --dim:#b29882; --white:#3a271b; --ava-bg:#efe1cf;
+  --win:#0f8f6c; --lose:#d6334f; --gold:#d48806; --gold-ink:#fff8e6; --felt:#2f7d5b; --felt-rim:#a0673a; --felt-ink:#f3fff6; --felt-sub:#d4f0de;
+  --ok-bg:#dcf3ea; --bad-bg:#fbe1e5;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#0b0a12;color:#ece8f6;font-family:var(--f-body);font-size:15px;-webkit-font-smoothing:antialiased;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:20px 48px}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+button{font:inherit}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid #fbbf24;outline-offset:2px}
+
+/* ── 模擬圖控制區 ── */
+.ctl{max-width:480px;margin:0 auto 18px;display:flex;flex-direction:column;gap:14px}
+.ctl h2{margin:0;font:400 13px var(--f-display);color:#a39cc0;letter-spacing:2px}
+.seg{display:flex;gap:6px}
+.seg button{flex:1;padding:9px;border-radius:10px;border:1px solid #353050;background:#1f1c30;color:#a39cc0;cursor:pointer;font-size:13px}
+.seg button.on{background:#fbbf24;border-color:#fbbf24;color:#3b2500;font-weight:500}
+.icons{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.icons button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border-radius:12px;border:1px solid #353050;background:#1f1c30;color:#a39cc0;cursor:pointer;font-size:12px}
+.icons button.on{border-color:#fbbf24;color:#fff}
+.gal{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.gal div{background:#1f1c30;border:1px solid #353050;border-radius:12px;padding:8px 4px;text-align:center;font-size:12px;color:#ece8f6}
+.gal div span{display:flex;justify-content:center;gap:0}
+.gal small{display:block;color:#77709a;font-size:11px}
+
+/* ── app 本體 ── */
+.app{max-width:480px;margin:0 auto;background:var(--bg);color:var(--text);border-radius:22px;padding:22px 16px 30px;border:1px solid #2a2640}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.org{font:400 13px var(--f-display);color:var(--sub);letter-spacing:2px}
+h1{margin:2px 0 0;font:400 26px var(--f-display);color:var(--white)}
+.tagline{font-size:13px;color:var(--accent);margin-top:4px;letter-spacing:1px}
+.season{font:600 12px var(--f-num);background:var(--accent);color:var(--accent-ink);padding:2px 8px;border-radius:6px;vertical-align:4px;margin-left:6px}
+.meta{font-size:12px;color:var(--dim);margin-top:8px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.btn{background:transparent;border:1px solid var(--line);color:var(--sub);border-radius:8px;padding:5px 11px;font-size:12px;cursor:pointer}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:500}
+.btn:active,.row:active,.pc:active{transform:scale(.97)}
+.sec{font:400 13px var(--f-display);color:var(--sub);margin:22px 2px 8px;letter-spacing:2px}
+.row{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;background:var(--card);margin-bottom:6px;cursor:pointer;border:1px solid var(--line);width:100%;color:inherit;text-align:left}
+.row.on{border-color:var(--accent);background:var(--card2)}
+.rk{width:30px;height:30px;flex:none;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;background:var(--line);color:var(--sub)}
+.rk.first{background:var(--gold);color:var(--gold-ink);font-size:16px}
+.who{flex:1;min-width:0}
+.who b{display:block;font-weight:500;color:var(--white);font-size:16px}
+.tier{font-size:11px;padding:1px 7px;border-radius:5px}
+.amt{font-size:18px;font-weight:600}
+.pos{color:var(--win)} .neg{color:var(--lose)} .zero{color:var(--sub)}
+.card{background:var(--card);border-radius:14px;padding:16px;border:1px solid var(--accent)}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0;text-align:center;font-size:11px;color:var(--sub)}
+.grid4 div div{font-size:16px;color:var(--white);font-weight:600;margin-top:2px}
+.grid4 div div.pos{color:var(--win)} .grid4 div div.neg{color:var(--lose)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.st{background:var(--card);border-radius:12px;padding:12px 6px;text-align:center;border:1px solid var(--line)}
+.st small{display:block;font-size:11px;color:var(--sub)}
+.st span{font-size:20px;font-weight:600;color:var(--white)}
+.days{display:flex;gap:6px;overflow-x:auto;margin-top:8px;padding-bottom:2px}
+.day{flex:0 0 auto;min-width:64px;background:var(--bg);border-radius:8px;padding:6px 8px;text-align:center;font-size:11px;color:var(--dim)}
+.day div{font-size:14px;font-weight:600;margin-top:2px}
+.tabs{display:flex;gap:6px;margin-top:14px}
+.tab{flex:1;padding:9px;border-radius:9px;text-align:center;cursor:pointer;color:var(--sub);border:1px solid var(--line);background:var(--card);font-size:13px}
+.tab.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:500}
+.pc{padding:6px 12px;border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--sub);cursor:pointer;font-size:13px}
+.pc.on{background:var(--card2);border-color:var(--accent);color:var(--white)}
+.pc.dash{border-style:dashed}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.in{background:var(--bg);border:1px solid var(--line);color:var(--white);border-radius:8px;padding:9px 10px;font:inherit;font-size:16px;width:100%;min-width:0}
+.line{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 6px 6px 10px;margin-bottom:6px}
+.sg{width:44px;height:38px;border-radius:8px;border:1px solid var(--line);background:var(--bg);cursor:pointer;font-size:14px;flex:none}
+.hint{font-size:11px;color:var(--dim);margin-top:5px}
+.bal{margin-top:16px;border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.7}
+.go{width:100%;padding:14px;border-radius:12px;border:none;font-size:16px;font-weight:500;cursor:pointer;margin-top:12px}
+footer{margin-top:28px;text-align:center;font-size:11px;color:var(--dim)}
+/* 戰況回顧 */
+.flt{font-size:12px;color:var(--sub);margin:16px 2px 6px}
+.rnav{display:flex;align-items:center;justify-content:space-between;margin:16px 0 10px}
+.nb{width:40px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--white);font-size:18px;cursor:pointer}
+.stage{display:grid;grid-template-columns:88px minmax(0,1fr) 88px;gap:6px;align-items:center;justify-items:center}
+.seat{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0}
+.seat b{font-size:13px;font-weight:500;color:var(--white)}
+.seat .num{font-size:15px;font-weight:600}
+.felt{width:100%;max-width:160px;aspect-ratio:1;background:var(--felt);border:6px solid var(--felt-rim);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center}
+/* 紀錄保持人 */
+.recs{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px 12px}
+.rec{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
+.rec:last-child{border-bottom:none}
+.medal{width:24px;height:24px;flex:none;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.rec .nm{flex:1;min-width:0;font-size:15px;color:var(--white);font-weight:500}
+.rec .nm small{display:block;font-size:11px;color:var(--dim);font-weight:400}
+.rec .num{font-size:15px;font-weight:600}
+.ico{flex:none;display:block}
+.pc .ico{display:inline-block;vertical-align:-5px;margin:-2px 4px -2px -4px}
+@keyframes rise{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
+.rise{animation:rise .3s ease both}
+@media (prefers-reduced-motion: reduce){.rise{animation:none}}
+</style>
+
+<div class="ctl">
+  <div><h2>配色</h2><div class="seg" id="skin"><button type="button" data-s="night" class="on">夜貓（深色）</button><button type="button" data-s="milk">奶茶（淺色）</button></div></div>
+  <div><h2>圖示</h2><div class="icons" id="icons"></div></div>
+  <div><h2>頭像（平常｜當桌最贏｜當桌最輸）</h2><div class="gal" id="gal"></div></div>
+</div>
+
+<div class="app" id="app">
+  <header>
+    <div>
+      <div class="org">魔競麻將娛樂間</div>
+      <h1 id="title">Rank<span class="season num">S1</span></h1>
+      <div class="tagline" id="tagline">貓抓狗咬，誰才是雀王？</div>
+    </div>
+    <div id="hIcon"></div>
+  </header>
+  <div class="meta"><span>最新：11/7・共 6 桌</span><span><button class="btn" type="button">重新整理</button> <button class="btn pri" id="toEntry" type="button">記帳</button></span></div>
+  <div class="tabs" id="views"><button type="button" class="tab on" data-v="board">Rank</button><button type="button" class="tab" data-v="replay">戰況回顧</button><button type="button" class="tab" data-v="records">紀錄保持人</button></div>
+  <main id="board"></main>
+  <main id="replay" hidden></main>
+  <main id="records" hidden></main>
+  <main id="entry" hidden></main>
+  <footer>魔競麻將娛樂間・每次打開都讀最新資料</footer>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = n => (n > 0 ? '+' : '') + Math.round(n).toLocaleString();
+const cls = n => n > 0 ? 'pos' : n < 0 ? 'neg' : 'zero';
+
+// ---------- 範例資料（模擬用，不是真的帳）----------
+const PLAYERS = ['Beck', 'Fanny', 'Angel', 'MM', 'Luke', 'Harry'];
+const S = (date, rounds, start, end, res) => ({ date, label: date.slice(5).replace(/^0/, '').replace('-', '/').replace('/0', '/'), rounds, start, end, results: Object.entries(res).map(([name, amt]) => ({ name, amt })) });
+const SESSIONS = [
+  S('2026-10-03', 12, '14:00', '18:10', { Beck: 1200, Fanny: -800, Angel: 400, MM: -800 }),
+  S('2026-10-10', 16, '13:30', '19:00', { Luke: 2100, Harry: -1500, Beck: -300, Angel: -300 }),
+  S('2026-10-17', 8, '20:00', '23:05', { MM: 900, Fanny: 600, Luke: -1100, Harry: -400 }),
+  S('2026-10-24', 12, '14:00', '17:40', { Angel: 1800, Beck: -600, MM: -700, Harry: -500 }),
+  S('2026-10-31', 16, '19:30', '01:10', { Harry: 2400, Fanny: -1200, Luke: -800, Angel: -400 }),
+  S('2026-11-07', 12, '14:00', '18:30', { Beck: 700, Fanny: 500, MM: -900, Luke: -300 })
+];
+
+// ---------- 像素貓狗 ----------
+// 每格一個字母＝一種顏色；h＝眼睛反光、E＝眼珠（輸家眼淚從 E 的最下緣流出）
+const SPRITES = {
+  Angel: { kind: '凱蒂風白貓', rows: [
+    '.F.....RR.RR', '.FF....RRRRR', '.FIF...RR.RR', '.FFFFFFFFFF.', 'FFFFFFFFFFFF', 'FFFEFFFFEFFF',
+    'KKFEFFFFEFKK', 'FFFFFYYFFFFF', 'KKFFFFFFFFKK', '..FFFFFFFF..', '.BBBBBBBBBB.', '..FF....FF..'],
+    c: { F: '#fbfbfd', I: '#f9a8c8', R: '#e11d48', E: '#1a1a2e', Y: '#facc15', K: '#4b4b5a', B: '#f472b6' } },
+  MM: { kind: '白底棕虎斑', rows: [
+    '.T........T.', '.TT......TT.', '.TIT....TIT.', '.TDTDTDTTTT.', 'TTTTDTTTTTTT', 'WWhEWWTThETT',
+    'WWEEWWWTEETT', 'WCWWWNNWWTCT', '.WWWWMMWWTT.', '..WWWWWWTT..', '.WWWWWWWWWW.', '..WW....WW..'],
+    c: { T: '#a47148', D: '#5c3b22', W: '#f6f1ea', I: '#e8a0a8', h: '#ffffff', E: '#5f9e8f', N: '#e89aa0', C: '#f2c4c4', M: '#b0786c' } },
+  Luke: { kind: '煙灰長毛', rows: [
+    '............', '.G........G.', '.GIG....GIG.', 'GGGGGGGGGGGG', 'GGGGGGGGGGGG', 'GGhEGGGGhEGG',
+    'GGEEGGGGEEGG', 'GGGGGNNGGGGG', 'LGGGGMMGGGGL', 'LLGGGGGGGGLL', '.LLLLLLLLLL.', '..GG....GG..'],
+    c: { G: '#5d5866', L: '#8f8a99', I: '#7d6f7a', h: '#fff4d6', E: '#f59e0b', N: '#3a3540', M: '#3a3540' } },
+  Fanny: { kind: '白貓', rows: [
+    '.F........F.', '.FF......FF.', '.FIF....FIF.', '.FFFFFFFFFF.', 'FFFFFFFFFFFF', 'FFhEFFFFhEFF',
+    'FFEEFFFFEEFF', 'FCFFFNNFFFCF', '.FFFFMMFFFF.', '..FFFFFFFF..', '.FFFFFFFFFF.', '..FF....FF..'],
+    c: { F: '#f8f6fb', I: '#f9a8c8', h: '#ffffff', E: '#4f8fe6', N: '#f4a3b4', C: '#fbd0da', M: '#c79aa6' } },
+  Harry: { kind: '橘白長毛', rows: [
+    '.O........O.', '.OO......OO.', '.OIO....OIO.', '.OOOOOOOOOO.', 'OOODOOOODOOO', 'OOhEOOOOhEOO',
+    'OOEEOOOOEEOO', 'OCOOWNNWOOCO', '.OOWWMMWWOO.', '..OWWWWWWO..', '.OOWWWWWWOO.', '..WW....WW..'],
+    c: { O: '#e8873a', D: '#c2662a', W: '#fbf5ec', I: '#f6b3a8', h: '#ffffff', E: '#1a1a2e', N: '#e98a8a', C: '#f5b08a', M: '#a15a3a' } },
+  Beck: { kind: '約克夏', rows: [
+    '.T..P..P..T.', '.TT.PPPP.TT.', '.TTSSPPSSTT.', '.TSSSSSSSST.', 'TTTTTTTTTTTT', 'TThETTTThETT',
+    'TTEETTTTEETT', 'TTTTTKKTTTTT', 'TTTTTMMTTTTT', 'STTTTTTTTTTS', 'SSSSSSSSSSSS', '.TT......TT.'],
+    c: { T: '#c98b4a', S: '#5f6b80', P: '#f472b6', h: '#ffffff', E: '#1a1a2e', K: '#1a1a2e', M: '#8a4f2a' } }
+};
+const CROWN = [[1, 0], [3, 0], [5, 0], [1, 1], [2, 1], [3, 1], [4, 1], [5, 1]];
+const HELMET = ['X..........X', 'XX.GGGGGG.XX', '.XGGGGGGGGX.', '..GYGYGYGYG.'];
+const HELMET_C = { X: '#f5f0e1', G: '#94a3b8', Y: '#facc15' };
+
+function avatar(name, mood = 0, size = 56, helmet = false) {
+  const sp = SPRITES[name];
+  let o = `<rect x="0" y="0" width="14" height="14" rx="3" style="fill:var(--ava-bg)"/>`;
+  if (mood > 0) CROWN.forEach(([x, y]) => o += `<rect x="${x + 4}" y="${y}" width="1" height="1" fill="#facc15"/>`);
+  sp.rows.forEach((r, y) => [...r].forEach((ch, x) => {
+    if (ch === '.') return;
+    let col = sp.c[ch];
+    if (mood < 0 && ch === 'M') col = '#7a2e2e';
+    o += `<rect x="${x + 1}" y="${y + 2}" width="1" height="1" fill="${col}"/>`;
+  }));
+  if (mood < 0) sp.rows.forEach((r, y) => [...r].forEach((ch, x) => {
+    if (ch === 'E' && (sp.rows[y + 1] || '')[x] !== 'E') o += `<rect x="${x + 1}" y="${y + 3}" width="1" height="2" fill="#38bdf8"/><rect x="${x + 1}" y="${y + 5}" width="1" height="1" fill="#7dd3fc"/>`;
+  }));
+  if (helmet) HELMET.forEach((r, y) => [...r].forEach((ch, x) => { if (ch !== '.') o += `<rect x="${x + 1}" y="${y}" width="1" height="1" fill="${HELMET_C[ch]}"/>`; }));
+  return `<svg class="ico" width="${size}" height="${size}" viewBox="0 0 14 14" shape-rendering="crispEdges" aria-hidden="true">${o}</svg>`;
+}
+
+// ---------- 圖示三款 ----------
+function px(rows, c, ox, oy, s = 1) {
+  let o = '';
+  rows.forEach((r, y) => [...r].forEach((ch, x) => { if (ch !== '.') o += `<rect x="${ox + x * s}" y="${oy + y * s}" width="${s}" height="${s}" fill="${c[ch]}"/>`; }));
+  return o;
+}
+const ICONS = {
+  A: { name: '麻將牌上的貓狗', svg: sz => `<svg width="${sz}" height="${sz}" viewBox="0 0 32 32" shape-rendering="crispEdges" aria-hidden="true">
+      <rect width="32" height="32" rx="7" fill="#2f7d5b"/>
+      <rect x="3" y="9" width="13" height="19" rx="1" fill="#f6efe0"/><rect x="3" y="26" width="13" height="2" fill="#2f9e6e"/>
+      <rect x="16" y="9" width="13" height="19" rx="1" fill="#f6efe0"/><rect x="16" y="26" width="13" height="2" fill="#2f9e6e"/>
+      ${px(SPRITES.Harry.rows.slice(0, 9), SPRITES.Harry.c, 3.5, 13, 1)}${px(SPRITES.Beck.rows.slice(0, 9), SPRITES.Beck.c, 16.5, 13, 1)}
+      <rect x="7" y="3" width="18" height="4" rx="1" fill="#fbbf24"/><rect x="9" y="4" width="14" height="2" fill="#c2552b"/></svg>` },
+  B: { name: '紅中長貓耳', svg: sz => `<svg width="${sz}" height="${sz}" viewBox="0 0 32 32" shape-rendering="crispEdges" aria-hidden="true">
+      <rect width="32" height="32" rx="7" fill="#1f1c30"/>
+      <rect x="7" y="3" width="2" height="2" fill="#f6efe0"/><rect x="7" y="5" width="4" height="2" fill="#f6efe0"/><rect x="9" y="5" width="1" height="1" fill="#f9a8c8"/>
+      <rect x="23" y="3" width="2" height="2" fill="#f6efe0"/><rect x="21" y="5" width="4" height="2" fill="#f6efe0"/><rect x="22" y="5" width="1" height="1" fill="#f9a8c8"/>
+      <rect x="7" y="7" width="18" height="22" rx="2" fill="#f6efe0"/><rect x="7" y="27" width="18" height="2" fill="#2f9e6e"/>
+      <rect x="15" y="9" width="2" height="16" fill="#d6334f"/><rect x="10" y="12" width="12" height="2" fill="#d6334f"/><rect x="10" y="12" width="2" height="7" fill="#d6334f"/><rect x="20" y="12" width="2" height="7" fill="#d6334f"/><rect x="10" y="17" width="12" height="2" fill="#d6334f"/>
+      <rect x="4" y="20" width="2" height="1" fill="#4b4b5a"/><rect x="26" y="20" width="2" height="1" fill="#4b4b5a"/><rect x="4" y="22" width="2" height="1" fill="#4b4b5a"/><rect x="26" y="22" width="2" height="1" fill="#4b4b5a"/></svg>` },
+  C: { name: '六隻擠一桌', svg: sz => `<svg width="${sz}" height="${sz}" viewBox="0 0 42 42" shape-rendering="crispEdges" aria-hidden="true">
+      <rect width="42" height="42" rx="9" fill="#c2552b"/>
+      ${['Angel', 'MM', 'Luke'].map((n, i) => px(SPRITES[n].rows.slice(0, 9), SPRITES[n].c, 3 + i * 12.5, 5, 1)).join('')}
+      ${['Fanny', 'Harry', 'Beck'].map((n, i) => px(SPRITES[n].rows.slice(0, 9), SPRITES[n].c, 3 + i * 12.5, 17, 1)).join('')}
+      <rect x="2" y="29" width="38" height="10" rx="1" fill="#2f7d5b"/><rect x="8" y="31" width="4" height="6" fill="#f6efe0"/><rect x="14" y="31" width="4" height="6" fill="#f6efe0"/><rect x="20" y="31" width="4" height="6" fill="#f6efe0"/><rect x="26" y="31" width="4" height="6" fill="#f6efe0"/>
+      <rect x="9" y="33" width="2" height="2" fill="#d6334f"/><rect x="15" y="33" width="2" height="2" fill="#2563eb"/><rect x="21" y="33" width="2" height="2" fill="#16a34a"/><rect x="27" y="33" width="2" height="2" fill="#d6334f"/></svg>` }
+};
+
+// ---------- 計算 ----------
+const players = PLAYERS.map(name => {
+  const vals = SESSIONS.map(s => { const r = s.results.find(x => x.name === name); return r ? r.amt : null; });
+  const played = vals.filter(v => v !== null);
+  return { name, vals, played, total: played.reduce((a, v) => a + v, 0) };
+}).sort((a, b) => b.total - a.total);
+function durMin(start, end) { const t = x => { const [h, m] = x.split(':').map(Number); return h * 60 + m; }; const d = t(end) - t(start); return d > 0 ? d : d + 1440; }
+const perRound = s => durMin(s.start, s.end) / s.rounds;
+
+function tierOf(i, n, total) {
+  if (i === 0) return ['至尊貓王', 'var(--gold)', 'var(--gold-ink)'];
+  if (i === n - 1) return ['落水狗', 'var(--lose)', 'var(--bad-bg)'];
+  if (total >= 3000) return ['鑽石罐罐', '#38bdf8', 'var(--card2)'];
+  if (total >= 0) return ['白銀肉泥', 'var(--sub)', 'var(--card2)'];
+  if (total >= -3000) return ['銅牌乾乾', '#d08a4f', 'var(--card2)'];
+  return ['鐵牌貓砂', 'var(--dim)', 'var(--card2)'];
+}
+
+let sel = players[0].name;
+function renderBoard() {
+  const n = players.length;
+  const lb = players.map((p, i) => {
+    const [tn, c, bg] = tierOf(i, n, p.total);
+    return `<button type="button" class="row rise ${p.name === sel ? 'on' : ''}" style="animation-delay:${i * 40}ms" data-name="${p.name}">
+      <div class="rk num ${i === 0 ? 'first' : ''}">${i === 0 ? '♛' : i + 1}</div>${avatar(p.name, 0, 40)}
+      <div class="who"><b>${p.name}</b><span class="tier" style="background:${bg};color:${c}">${tn}</span></div>
+      <div class="amt num ${cls(p.total)}">${fmt(p.total)}</div></button>`;
+  }).join('');
+  const rounds = SESSIONS.reduce((a, s) => a + s.rounds, 0);
+  const mins = SESSIONS.reduce((a, s) => a + durMin(s.start, s.end), 0);
+  $('board').innerHTML = `
+    <div class="sec">總排行</div><div id="lb">${lb}</div>
+    <div class="sec">個人戰績卡</div><div class="card" id="card"></div>
+    <div class="sec">牌桌統計</div>
+    <div class="grid3">
+      <div class="st"><small>總桌數</small><span class="num">${SESSIONS.length}</span></div>
+      <div class="st"><small>總將數</small><span class="num">${rounds}</span></div>
+      <div class="st"><small>每將平均</small><span class="num">${Math.round(mins / rounds)}<small style="display:inline;font-size:12px"> 分</small></span></div>
+    </div>`;
+  document.querySelectorAll('#lb .row').forEach(el => el.onclick = () => { sel = el.dataset.name; renderBoard(); });
+  renderCard();
+}
+function renderCard() {
+  const p = players.find(x => x.name === sel);
+  const wins = p.played.filter(v => v > 0).length;
+  let acc = 0; const pts = [0, ...p.vals.map(v => acc += (v || 0))];
+  const mx = Math.max(...pts.map(Math.abs), 1), W = 300, H = 64, step = W / (pts.length - 1);
+  const y = v => H / 2 - v / mx * (H / 2 - 5);
+  const line = pts.map((v, i) => `${(i * step).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  const days = p.vals.map((v, i) => ({ v, i })).filter(x => x.v !== null).reverse().map(({ v, i }) => `<div class="day">${SESSIONS[i].label}<div class="num ${cls(v)}">${fmt(v)}</div></div>`).join('');
+  $('card').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="display:flex;align-items:center;gap:8px;font:400 21px var(--f-display);color:var(--white)">${avatar(p.name, 0, 48)}${p.name}</div>
+      <div class="num ${cls(p.total)}" style="font-size:26px;font-weight:600">${fmt(p.total)}</div></div>
+    <div class="grid4">
+      <div>出賽<div class="num">${p.played.length}</div></div>
+      <div>勝率<div class="num">${Math.round(wins / p.played.length * 100)}%</div></div>
+      <div>單場最贏<div class="num pos">${wins ? fmt(Math.max(...p.played)) : '—'}</div></div>
+      <div>單場最輸<div class="num neg">${p.played.some(v => v < 0) ? fmt(Math.min(...p.played)) : '—'}</div></div></div>
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:64px" aria-label="累計輸贏走勢">
+      <line x1="0" y1="${H / 2}" x2="${W}" y2="${H / 2}" style="stroke:var(--line)" stroke-dasharray="3 3"/>
+      <polyline points="${line}" fill="none" style="stroke:var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      <circle cx="${((pts.length - 1) * step).toFixed(1)}" cy="${y(pts[pts.length - 1]).toFixed(1)}" r="4" style="fill:var(--accent)"/></svg>
+    <div class="days">${days}</div>`;
+}
+
+let ri = 0;
+function renderReplay() {
+  const L = SESSIONS.slice().reverse(), s = L[ri];
+  const amts = s.results.map(r => r.amt), best = Math.max(...amts), worst = Math.min(...amts);
+  const seat = r => `<div class="seat">${avatar(r.name, r.amt === best ? 1 : r.amt === worst ? -1 : 0, 60)}<b>${r.name}</b><span class="num ${cls(r.amt)}">${fmt(r.amt)}</span></div>`;
+  const [n, e, so, w] = s.results;
+  $('replay').innerHTML = `
+    <div class="flt">日期</div>
+    <select class="in" id="rDate" style="font-size:14px"><option>全部日期</option>${L.map(x => `<option>${x.label}</option>`).join('')}</select>
+    <div class="flt">人員</div>
+    <div class="chips">${PLAYERS.map(n => `<button type="button" class="pc">${avatar(n, 0, 22)}${n}</button>`).join('')}</div>
+    <div class="rnav"><button type="button" class="nb" id="rPrev" aria-label="上一桌">‹</button>
+      <div style="text-align:center"><div style="font:400 17px var(--f-display);color:var(--white)">${s.label}</div><div style="font-size:12px;color:var(--sub)">第 ${ri + 1} 桌／共 ${L.length} 桌</div></div>
+      <button type="button" class="nb" id="rNext" aria-label="下一桌">›</button></div>
+    <div class="stage"><div></div>${seat(n)}<div></div>
+      ${seat(w)}<div class="felt"><div style="font:400 19px var(--f-display);color:var(--felt-ink)">${s.label}</div><div class="num" style="font-size:13px;color:var(--felt-sub)">${s.start}～${s.end}</div><div style="font-size:12px;color:var(--felt-sub)">${s.rounds} 將・每將 ${Math.round(perRound(s))} 分</div></div>${seat(e)}
+      <div></div>${seat(so)}<div></div></div>`;
+  $('rPrev').onclick = () => { ri = (ri - 1 + L.length) % L.length; renderReplay(); };
+  $('rNext').onclick = () => { ri = (ri + 1) % L.length; renderReplay(); };
+}
+
+const MEDAL = [['var(--gold)', 'var(--gold-ink)'], ['#cbd5e1', '#1e293b'], ['#e0a46e', '#3a2412']];
+function top3(items, better) { return items.map(it => ({ ...it, rank: 1 + items.filter(o => better(o, it)).length })).filter(it => it.rank <= 3).sort((a, b) => a.rank - b.rank); }
+function recBlock(title, list, val, helmetTop) {
+  return `<div class="sec">${title}</div><div class="recs">${list.map(it => `<div class="rec"><div class="medal num" style="background:${MEDAL[it.rank - 1][0]};color:${MEDAL[it.rank - 1][1]}">${it.rank}</div>${avatar(it.name, 0, 38, helmetTop && it.rank === 1)}<div class="nm">${it.name}${it.sub ? `<small>${it.sub}</small>` : ''}</div>${val(it)}</div>`).join('')}</div>`;
+}
+function tableBlock(title, list) {
+  return `<div class="sec">${title}</div><div class="recs">${list.map(it => `<div class="rec"><div class="medal num" style="background:${MEDAL[0][0]};color:${MEDAL[0][1]}">1</div>
+    <div class="nm"><div style="display:flex;gap:2px">${it.s.results.map(r => avatar(r.name, 0, 32)).join('')}</div><small>${it.s.label}・${it.s.start}～${it.s.end}</small></div>
+    <span class="num" style="color:var(--white)">${it.v} 分</span></div>`).join('')}</div>`;
+}
+function renderRecords() {
+  const timed = SESSIONS.map(s => ({ s, v: Math.round(perRound(s)) }));
+  const singles = SESSIONS.flatMap(s => s.results.map(r => ({ name: r.name, v: r.amt, sub: s.label })));
+  const attend = players.map(p => ({ name: p.name, v: p.played.length }));
+  const money = it => `<span class="num ${cls(it.v)}">${fmt(it.v)}</span>`;
+  $('records').innerHTML =
+    recBlock('單場最贏', top3(singles.filter(x => x.v > 0), (a, b) => a.v > b.v), money) +
+    recBlock('單場最輸', top3(singles.filter(x => x.v < 0), (a, b) => a.v < b.v), money) +
+    recBlock('出席（打了幾桌）', top3(attend, (a, b) => a.v > b.v).slice(0, 3), it => `<span class="num" style="color:var(--white)">${it.v} 桌</span>`) +
+    tableBlock('最快場次（每將平均）', top3(timed, (a, b) => a.v < b.v).filter(it => it.rank === 1)) +
+    tableBlock('最慢場次（每將平均）', top3(timed, (a, b) => a.v > b.v).filter(it => it.rank === 1));
+}
+
+// ---------- 記帳（帳平＝大家輸贏合計 0；沒有東錢、沒有組別）----------
+const F = { picked: ['Beck', 'Fanny', 'MM', 'Luke'], vals: { Beck: { v: '700', s: 1 }, Fanny: { v: '500', s: 1 }, MM: { v: '900', s: -1 }, Luke: { v: '', s: -1 } }, rounds: '12', start: '14:00', end: '18:30', by: 'Beck' };
+function calc() {
+  const sum = F.picked.reduce((a, n) => a + (F.vals[n] && F.vals[n].v !== '' ? Number(F.vals[n].v) * F.vals[n].s : 0), 0);
+  const missing = F.picked.filter(n => !F.vals[n] || F.vals[n].v === '');
+  let reason = '';
+  if (F.picked.length < 2) reason = '至少選 2 個人';
+  else if (missing.length) reason = '還沒填金額：' + missing.join('、');
+  else if (F.rounds === '') reason = '還沒填將數';
+  else if (sum !== 0) reason = '帳不平，差 ' + fmt(-sum);
+  else if (!F.by) reason = '先選「我是誰」';
+  return { sum, ok: !reason, reason };
+}
+function renderEntry() {
+  $('entry').innerHTML = `
+    <div class="tabs"><button type="button" class="tab on">新增一桌</button><button type="button" class="tab">修改舊的</button></div>
+    <div class="sec">日期</div><input class="in" type="date" id="fDate" value="2026-11-14">
+    <div class="sec">誰有打</div>
+    <div class="chips" id="fChips">${PLAYERS.map(n => `<button type="button" class="pc ${F.picked.includes(n) ? 'on' : ''}" data-n="${n}">${avatar(n, 0, 22)}${n}</button>`).join('')}</div>
+    <div class="sec">每人輸贏</div>
+    <div id="fLines">${F.picked.map(n => { const v = F.vals[n] || { v: '', s: 1 }; return `<div class="line">${avatar(n, 0, 30)}<span style="flex:1;color:var(--white);min-width:0">${n}</span>
+      <button type="button" class="sg" data-sg="${n}" style="color:${v.s > 0 ? 'var(--win)' : 'var(--lose)'}">${v.s > 0 ? '贏' : '輸'}</button>
+      <input class="in num" type="number" inputmode="numeric" min="0" step="1" id="amt-${n}" data-amt="${n}" value="${v.v}" placeholder="金額" style="width:110px"></div>`; }).join('')}</div>
+    <div class="sec">將數與時間</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <div><div class="hint" style="margin:0 0 4px">將數</div><input class="in num" type="number" inputmode="numeric" id="fRounds" value="${F.rounds}"></div>
+      <div><div class="hint" style="margin:0 0 4px">開局</div><input class="in" type="time" id="fStart" value="${F.start}"></div>
+      <div><div class="hint" style="margin:0 0 4px">結束</div><input class="in" type="time" id="fEnd" value="${F.end}"></div></div>
+    <div class="hint" id="fDur"></div>
+    <div class="sec">我是誰</div>
+    <select class="in" id="fBy"><option value="">選你自己</option>${PLAYERS.map(n => `<option ${F.by === n ? 'selected' : ''}>${n}</option>`).join('')}</select>
+    <div class="bal" id="fBal"></div>
+    <button type="button" class="go" id="fGo">送出</button>`;
+  document.querySelectorAll('#fChips .pc').forEach(b => b.onclick = () => { const n = b.dataset.n; F.picked = F.picked.includes(n) ? F.picked.filter(x => x !== n) : [...F.picked, n]; renderEntry(); });
+  document.querySelectorAll('[data-sg]').forEach(b => b.onclick = () => { const n = b.dataset.sg; F.vals[n] = F.vals[n] || { v: '', s: 1 }; F.vals[n].s *= -1; renderEntry(); });
+  document.querySelectorAll('[data-amt]').forEach(i => i.oninput = () => { const n = i.dataset.amt; F.vals[n] = F.vals[n] || { v: '', s: 1 }; F.vals[n].v = i.value; updateBal(); });
+  $('fRounds').oninput = e => { F.rounds = e.target.value; updateBal(); };
+  $('fStart').oninput = e => { F.start = e.target.value; updateBal(); };
+  $('fEnd').oninput = e => { F.end = e.target.value; updateBal(); };
+  $('fBy').onchange = e => { F.by = e.target.value; updateBal(); };
+  updateBal();
+}
+function updateBal() {
+  const c = calc(), box = $('fBal');
+  const m = F.start && F.end && F.start !== F.end ? durMin(F.start, F.end) : 0;
+  $('fDur').textContent = m ? `共 ${Math.floor(m / 60)} 小時 ${m % 60} 分${Number(F.rounds) ? `・每將平均 ${Math.round(m / Number(F.rounds))} 分` : ''}` : '';
+  box.style.background = c.ok ? 'var(--ok-bg)' : 'var(--bad-bg)';
+  box.style.color = c.ok ? 'var(--win)' : 'var(--lose)';
+  box.innerHTML = `大家輸贏合計 <span class="num">${fmt(c.sum)}</span><br><b>${c.ok ? '帳平了，可以送出' : esc(c.reason)}</b>`;
+  const go = $('fGo');
+  go.style.background = c.ok ? 'var(--accent)' : 'var(--line)';
+  go.style.color = c.ok ? 'var(--accent-ink)' : 'var(--dim)';
+}
+
+// ---------- 切換 ----------
+const VIEW_NAME = { board: 'Rank', replay: '戰況回顧', records: '紀錄保持人', entry: '記帳' };
+function showView(v) {
+  ['board', 'replay', 'records', 'entry'].forEach(k => $(k).hidden = k !== v);
+  $('tagline').hidden = v !== 'board';
+  $('title').innerHTML = VIEW_NAME[v] + (v === 'entry' ? '' : '<span class="season num">S1</span>');
+  $('views').hidden = v === 'entry';
+  $('toEntry').textContent = v === 'entry' ? '回排行' : '記帳';
+  document.querySelectorAll('#views .tab').forEach(t => t.classList.toggle('on', t.dataset.v === v));
+}
+document.querySelectorAll('#views .tab').forEach(t => t.onclick = () => showView(t.dataset.v));
+$('toEntry').onclick = () => showView($('entry').hidden ? 'entry' : 'board');
+
+let icon = 'A';
+function renderIcons() {
+  $('icons').innerHTML = Object.entries(ICONS).map(([k, v]) => `<button type="button" data-i="${k}" class="${k === icon ? 'on' : ''}">${v.svg(64)}${k}・${v.name}</button>`).join('');
+  document.querySelectorAll('#icons button').forEach(b => b.onclick = () => { icon = b.dataset.i; renderIcons(); });
+  $('hIcon').innerHTML = ICONS[icon].svg(48);
+}
+document.querySelectorAll('#skin button').forEach(b => b.onclick = () => {
+  $('app').dataset.skin = b.dataset.s;
+  $('gal').dataset.skin = b.dataset.s;
+  document.querySelectorAll('#skin button').forEach(x => x.classList.toggle('on', x === b));
+});
+$('gal').innerHTML = PLAYERS.map(n => `<div>${n}<span>${avatar(n, 0, 40)}${avatar(n, 1, 40)}${avatar(n, -1, 40)}</span><small>${SPRITES[n].kind}</small></div>`).join('');
+
+renderIcons(); renderBoard(); renderReplay(); renderRecords(); renderEntry();
+</script>
