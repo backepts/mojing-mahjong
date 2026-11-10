@@ -122,7 +122,6 @@ footer{margin-top:28px;text-align:center;font-size:11px;color:var(--dim)}
     <div>
       <div class="org">魔競麻將娛樂間</div>
       <h1 id="title">Rank<span class="season num">S1</span></h1>
-      <div class="tagline" id="tagline">貓抓狗咬，誰才是雀王？</div>
     </div>
     <div id="hIcon"></div>
   </header>
@@ -195,9 +194,18 @@ function avatar(name, mood = 0, size = 56, helmet = false) {
     if (mood < 0 && ch === 'M') col = '#7a2e2e';
     o += `<rect x="${x + 1}" y="${y + 2}" width="1" height="1" fill="${col}"/>`;
   }));
-  if (mood < 0) sp.rows.forEach((r, y) => [...r].forEach((ch, x) => {
-    if (ch === 'E' && (sp.rows[y + 1] || '')[x] !== 'E') o += `<rect x="${x + 1}" y="${y + 3}" width="1" height="2" fill="#38bdf8"/><rect x="${x + 1}" y="${y + 5}" width="1" height="1" fill="#7dd3fc"/>`;
-  }));
+  // 輸家：眉毛往內下壓（生氣）＋右上角紅色青筋
+  if (mood < 0) {
+    const eyes = [[], []];
+    sp.rows.forEach((r, y) => [...r].forEach((ch, x) => { if ('Eh'.includes(ch)) eyes[x < 6 ? 0 : 1].push([x, y]); }));
+    eyes.forEach((pts, side) => {
+      if (!pts.length) return;
+      const x0 = Math.min(...pts.map(p => p[0])), x1 = Math.max(...pts.map(p => p[0])), y0 = Math.min(...pts.map(p => p[1])) + 2;
+      const outer = side === 0 ? x0 - 1 : x1 + 1, inner = side === 0 ? x1 : x0;
+      o += `<rect x="${outer + 1}" y="${y0 - 2}" width="1" height="1" fill="#1a1a2e"/><rect x="${inner + 1}" y="${y0 - 1}" width="1" height="1" fill="#1a1a2e"/>`;
+    });
+    [[11, 0], [13, 0], [12, 1], [11, 2], [13, 2]].forEach(([x, y]) => o += `<rect x="${x}" y="${y}" width="1" height="1" fill="#ef4444"/>`);
+  }
   if (helmet) HELMET.forEach((r, y) => [...r].forEach((ch, x) => { if (ch !== '.') o += `<rect x="${x + 1}" y="${y}" width="1" height="1" fill="${HELMET_C[ch]}"/>`; }));
   return `<svg class="ico" width="${size}" height="${size}" viewBox="0 0 14 14" shape-rendering="crispEdges" aria-hidden="true">${o}</svg>`;
 }
@@ -240,12 +248,12 @@ function durMin(start, end) { const t = x => { const [h, m] = x.split(':').map(N
 const perRound = s => durMin(s.start, s.end) / s.rounds;
 
 function tierOf(i, n, total) {
-  if (i === 0) return ['至尊貓王', 'var(--gold)', 'var(--gold-ink)'];
-  if (i === n - 1) return ['落水狗', 'var(--lose)', 'var(--bad-bg)'];
-  if (total >= 3000) return ['鑽石罐罐', '#38bdf8', 'var(--card2)'];
-  if (total >= 0) return ['白銀肉泥', 'var(--sub)', 'var(--card2)'];
-  if (total >= -3000) return ['銅牌乾乾', '#d08a4f', 'var(--card2)'];
-  return ['鐵牌貓砂', 'var(--dim)', 'var(--card2)'];
+  if (i === 0) return ['至尊雀王', '#facc15', '#3b2f00'];
+  if (i === n - 1 && n > 1) return ['地獄倒霉鬼', '#fb7185', '#4a0d1a'];
+  if (total >= 3000) return ['鑽石', '#7dd3fc', '#0b2a3d'];
+  if (total >= 0) return ['白銀', '#d4d4e8', '#2e2c4a'];
+  if (total >= -3000) return ['銅牌仔', '#e0a46e', '#3a2412'];
+  return ['鐵牌仔', '#94a3b8', '#1e2533'];
 }
 
 let sel = players[0].name;
@@ -398,7 +406,6 @@ function updateBal() {
 const VIEW_NAME = { board: 'Rank', replay: '戰況回顧', records: '紀錄保持人', entry: '記帳' };
 function showView(v) {
   ['board', 'replay', 'records', 'entry'].forEach(k => $(k).hidden = k !== v);
-  $('tagline').hidden = v !== 'board';
   $('title').innerHTML = VIEW_NAME[v] + (v === 'entry' ? '' : '<span class="season num">S1</span>');
   $('views').hidden = v === 'entry';
   $('toEntry').textContent = v === 'entry' ? '回排行' : '記帳';
@@ -407,7 +414,7 @@ function showView(v) {
 document.querySelectorAll('#views .tab').forEach(t => t.onclick = () => showView(t.dataset.v));
 $('toEntry').onclick = () => showView($('entry').hidden ? 'entry' : 'board');
 
-let icon = 'A';
+let icon = 'B';
 function renderIcons() {
   $('icons').innerHTML = Object.entries(ICONS).map(([k, v]) => `<button type="button" data-i="${k}" class="${k === icon ? 'on' : ''}">${v.svg(64)}${k}・${v.name}</button>`).join('');
   document.querySelectorAll('#icons button').forEach(b => b.onclick = () => { icon = b.dataset.i; renderIcons(); });
